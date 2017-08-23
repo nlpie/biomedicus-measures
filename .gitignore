@@ -1,0 +1,13 @@
+/release/
+/.idea/
+.project
+.classpath
+.settings/
+!target/site/
+target/*
+*.iml
+*.zip
+*.orig
+./distribution/src/main/resources/logs/biomedicus.log
+distribution/src/main/resources/logs/biomedicus.log
+~$*
