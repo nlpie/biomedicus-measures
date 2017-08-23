@@ -116,15 +116,16 @@ public class CombinedNumberDetector {
    */
   public boolean tryToken(String token, int tokenBegin, int tokenEnd) {
     if (decimalAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
-      begin = decimalAcceptor.getBegin();
-      end = decimalAcceptor.getEnd();
-      numberType = decimalAcceptor.getNumberType();
-      numerator = decimalAcceptor.getNumerator();
-      denominator = decimalAcceptor.getDenominator();
+      copyFromDecimal();
+      return true;
+    } else if (englishAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
+      copyFromEnglish();
+      return true;
     }
 
     return false;
   }
+
 
   /**
    * Informs this instance that it is done being passed tokens, and to check if any of the tokens it
@@ -133,6 +134,29 @@ public class CombinedNumberDetector {
    * @return {@code true} if the tokens it has received contain a number, {@code false} otherwise
    */
   public boolean finish() {
+    if (decimalAcceptor.finish()) {
+      copyFromDecimal();
+      return true;
+    } else if (englishAcceptor.finish()) {
+      copyFromEnglish();
+      return true;
+    }
     return false;
+  }
+
+  private void copyFromEnglish() {
+    begin = englishAcceptor.getBegin();
+    end = englishAcceptor.getEnd();
+    numberType = englishAcceptor.getNumberType();
+    numerator = englishAcceptor.getNumerator();
+    denominator = englishAcceptor.getDenominator();
+  }
+
+  private void copyFromDecimal() {
+    begin = decimalAcceptor.getBegin();
+    end = decimalAcceptor.getEnd();
+    numberType = decimalAcceptor.getNumberType();
+    numerator = decimalAcceptor.getNumerator();
+    denominator = decimalAcceptor.getDenominator();
   }
 }

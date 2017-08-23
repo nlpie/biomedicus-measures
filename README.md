@@ -19,7 +19,7 @@ To use in a maven project, include the following in your pom:
   <dependency>
     <groupId>edu.umn.biomedicus</groupId>
     <artifactId>biomedicus-measures</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </dependency>
 </dependencies>
 ```
@@ -28,13 +28,15 @@ Alternatively, download the .jar and include that in your libraries.
 
 ## Javadoc
 
-You can find the api documentation for this project [here](https://nlpie.github.io/biomedicus-measures/target/site/apidocs/index.html)
+You can find the api documentation for this project [here](https://nlpie.github.io/biomedicus-measures/site/apidocs/index.html)
 
 ## Detecting numbers in text
 
 
 
 ```java
+
+
 
 ```
 

@@ -10,7 +10,7 @@ import static org.testng.Assert.*;
 
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.BasicNumberAcceptor;
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.NonFractionAcceptor;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import mockit.Expectations;
 import mockit.Injectable;
 import org.testng.annotations.BeforeMethod;
@@ -149,7 +149,7 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(numberAcceptor.tryToken("billion", 5, 12));
     assertTrue(numberAcceptor.tryToken("people", 13, 19));
 
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(5).multiply(BigInteger.valueOf(10).pow(9)));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(9)));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 12);
   }
@@ -165,7 +165,7 @@ public class EnglishNumeralsAcceptorTest {
 
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 4);
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(4));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(4));
   }
 
   @Test
@@ -182,7 +182,7 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(numberAcceptor.tryToken("five", 22, 26));
     assertTrue(numberAcceptor.finish());
 
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(1545));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(1545));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 26);
   }
@@ -201,8 +201,8 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(numberAcceptor.tryToken("million", 18, 25));
     assertTrue(numberAcceptor.finish());
 
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(5).multiply(BigInteger.valueOf(10).pow(9))
-        .add(BigInteger.valueOf(5).multiply(BigInteger.valueOf(10).pow(6))));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(9))
+        .add(BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(6))));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 25);
   }
@@ -218,7 +218,7 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(numberAcceptor.tryToken("hundred", 5, 12));
     assertTrue(numberAcceptor.finish());
 
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(500));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(500));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 12);
   }
@@ -232,7 +232,7 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(numberAcceptor.tryToken("forty", 0, 5));
     assertTrue(numberAcceptor.finish());
 
-    assertEquals(numberAcceptor.value, BigInteger.valueOf(40));
+    assertEquals(numberAcceptor.value, BigDecimal.valueOf(40));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 5);
   }
@@ -250,8 +250,8 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(fractionAcceptor.tryToken("forty", 5, 10));
     assertTrue(fractionAcceptor.tryToken("sixths", 11, 17));
 
-    assertEquals(fractionAcceptor.getNumerator(), BigInteger.valueOf(5));
-    assertEquals(fractionAcceptor.getDenominator(), BigInteger.valueOf(46));
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.valueOf(5));
+    assertEquals(fractionAcceptor.getDenominator(), BigDecimal.valueOf(46));
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 17);
   }
@@ -267,8 +267,8 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(fractionAcceptor.tryToken("forty", 0, 5));
     assertTrue(fractionAcceptor.tryToken("sixths", 6, 12));
 
-    assertEquals(fractionAcceptor.getNumerator(), BigInteger.valueOf(40));
-    assertEquals(fractionAcceptor.getDenominator(), BigInteger.valueOf(6));
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.valueOf(40));
+    assertEquals(fractionAcceptor.getDenominator(), BigDecimal.valueOf(6));
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 12);
   }
@@ -284,8 +284,8 @@ public class EnglishNumeralsAcceptorTest {
     assertFalse(fractionAcceptor.tryToken("a", 9, 10));
     assertTrue(fractionAcceptor.tryToken("half", 11, 15));
 
-    assertEquals(fractionAcceptor.getNumerator(), BigInteger.valueOf(11));
-    assertEquals(fractionAcceptor.getDenominator(), BigInteger.valueOf(2));
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.valueOf(11));
+    assertEquals(fractionAcceptor.getDenominator(), BigDecimal.valueOf(2));
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 15);
     assertEquals(fractionAcceptor.getNumberType(), NumberType.FRACTION);

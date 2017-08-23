@@ -3,7 +3,6 @@
 .project
 .classpath
 .settings/
-!target/site/
 target/*
 *.iml
 *.zip

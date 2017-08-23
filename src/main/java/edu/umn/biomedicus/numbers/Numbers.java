@@ -29,6 +29,21 @@ public class Numbers {
   }
 
   /**
+   * Creates a combined number detector for both English numerals and decimal numbers using the
+   * supplied paths for number model files.
+   *
+   * @param nrnumPath the path to the SPECIALIST LEXICON NRNUM file.
+   * @param nrvarPath the path to the SPECIALIST LEXICON NRVAR file.
+   * @return newly created combined number detector
+   * @throws IOException if there are any exceptions thrown loading the number files
+   */
+  public CombinedNumberDetector createNumberDetector(Path nrnumPath, Path nrvarPath)
+      throws IOException {
+    return new CombinedNumberDetector(new DecimalNumberAcceptor(),
+        EnglishNumeralsAcceptor.create(NumberModel.createNumberModel(nrnumPath, nrvarPath)));
+  }
+
+  /**
    * Creates a factory for creating new number detectors.
    *
    * @param nrnumPath the path to the SPECIALIST NRNUM file containing number definitions.

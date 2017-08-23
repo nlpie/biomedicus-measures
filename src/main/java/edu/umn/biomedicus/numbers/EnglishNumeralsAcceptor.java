@@ -24,10 +24,10 @@ public class EnglishNumeralsAcceptor {
   private final NonFractionAcceptor nonFractionAcceptor;
 
   @Nullable
-  private BigInteger numerator;
+  private BigDecimal numerator;
 
   @Nullable
-  private BigInteger denominator;
+  private BigDecimal denominator;
 
   private int begin;
 
@@ -54,12 +54,12 @@ public class EnglishNumeralsAcceptor {
   }
 
   @Nullable
-  public BigInteger getNumerator() {
+  public BigDecimal getNumerator() {
     return numerator;
   }
 
   @Nullable
-  public BigInteger getDenominator() {
+  public BigDecimal getDenominator() {
     return denominator;
   }
 
@@ -96,12 +96,10 @@ public class EnglishNumeralsAcceptor {
     }
 
     if (denominator == null) {
-      return new BigDecimal(numerator);
+      return numerator;
     }
 
-    BigDecimal first = new BigDecimal(numerator);
-    BigDecimal second = new BigDecimal(denominator);
-    return first.divide(second, BigDecimal.ROUND_HALF_UP);
+    return numerator.divide(denominator, BigDecimal.ROUND_HALF_UP);
   }
 
   /**
@@ -140,8 +138,8 @@ public class EnglishNumeralsAcceptor {
     if (andHalf == 1 && token.equalsIgnoreCase("a")) {
       andHalf = 2;
     } else if (andHalf == 2 && token.equalsIgnoreCase("half")) {
-      denominator = BigInteger.valueOf(2);
-      numerator = numerator.multiply(denominator).add(BigInteger.ONE);
+      denominator = BigDecimal.valueOf(2);
+      numerator = numerator.multiply(denominator).add(BigDecimal.ONE);
       numberType = NumberType.FRACTION;
       end = tokenEnd;
       return true;
@@ -331,7 +329,7 @@ public class EnglishNumeralsAcceptor {
     private State state;
 
     @Nullable
-    BigInteger value;
+    BigDecimal value;
 
     private int valueBuilder = 0;
 
@@ -384,7 +382,7 @@ public class EnglishNumeralsAcceptor {
             end = basicNumberAcceptor.end;
             valueBuilder = basicNumberAcceptor.value;
             if (basicNumberAcceptor.isDenominator || basicNumberAcceptor.isOrdinal) {
-              value = BigInteger.valueOf(valueBuilder);
+              value = BigDecimal.valueOf(valueBuilder);
               return true;
             }
           } else if (value != null) {
@@ -408,7 +406,7 @@ public class EnglishNumeralsAcceptor {
             valueBuilder = valueBuilder * 100;
             end = tokenEnd;
             basicNumberAcceptor.reset();
-            value = BigInteger.valueOf(valueBuilder);
+            value = BigDecimal.valueOf(valueBuilder);
             return true;
           }
           if ("hundredths".equalsIgnoreCase(token)) {
@@ -416,7 +414,7 @@ public class EnglishNumeralsAcceptor {
             valueBuilder = valueBuilder * 100;
             end = tokenEnd;
             basicNumberAcceptor.reset();
-            value = BigInteger.valueOf(valueBuilder);
+            value = BigDecimal.valueOf(valueBuilder);
             return true;
           }
           break;
@@ -446,11 +444,11 @@ public class EnglishNumeralsAcceptor {
       if (numberDefinition != null) {
         if (BasicNumberType.MAGNITUDE == numberDefinition.getBasicNumberType()) {
           if (value != null) {
-            value = value.add(BigInteger.valueOf(1000).pow(numberDefinition.getValue())
-                .multiply(BigInteger.valueOf(valueBuilder)));
+            value = value.add(BigDecimal.valueOf(1000).pow(numberDefinition.getValue())
+                .multiply(BigDecimal.valueOf(valueBuilder)));
           } else {
-            value = BigInteger.valueOf(1000).pow(numberDefinition.getValue())
-                .multiply(BigInteger.valueOf(valueBuilder));
+            value = BigDecimal.valueOf(1000).pow(numberDefinition.getValue())
+                .multiply(BigDecimal.valueOf(valueBuilder));
           }
           valueBuilder = 0;
           end = tokenEnd;
@@ -464,11 +462,11 @@ public class EnglishNumeralsAcceptor {
         if (numberDefinition != null
             && numberDefinition.getBasicNumberType() == BasicNumberType.MAGNITUDE) {
           if (value != null) {
-            value = value.add(BigInteger.valueOf(1000).pow(numberDefinition.getValue())
-                .multiply(BigInteger.valueOf(valueBuilder)));
+            value = value.add(BigDecimal.valueOf(1000).pow(numberDefinition.getValue())
+                .multiply(BigDecimal.valueOf(valueBuilder)));
           } else {
-            value = BigInteger.valueOf(1000).pow(numberDefinition.getValue())
-                .multiply(BigInteger.valueOf(valueBuilder));
+            value = BigDecimal.valueOf(1000).pow(numberDefinition.getValue())
+                .multiply(BigDecimal.valueOf(valueBuilder));
           }
           end = tokenEnd;
           return true;
@@ -478,9 +476,9 @@ public class EnglishNumeralsAcceptor {
       // if we fall through to here we've reached the end of the number
 
       if (value == null) {
-        value = BigInteger.valueOf(valueBuilder);
+        value = BigDecimal.valueOf(valueBuilder);
       } else {
-        value = value.add(BigInteger.valueOf(valueBuilder));
+        value = value.add(BigDecimal.valueOf(valueBuilder));
       }
 
       return true;
@@ -513,9 +511,9 @@ public class EnglishNumeralsAcceptor {
         if (state == State.NONE) {
           return false;
         }
-        value = BigInteger.valueOf(valueBuilder);
+        value = BigDecimal.valueOf(valueBuilder);
       } else {
-        value = value.add(BigInteger.valueOf(valueBuilder));
+        value = value.add(BigDecimal.valueOf(valueBuilder));
       }
 
       return true;
