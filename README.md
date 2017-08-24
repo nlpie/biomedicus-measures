@@ -35,8 +35,7 @@ You can find the api documentation for this project [here](https://nlpie.github.
 ```java
 private void detectNumbers() {
   CombinedNumberDetector detect = Numbers
-      .createNumberDetector(Paths.get("/path/to/NRNUM"), Paths.get("/path/to/NRVAR"))
-  
+      .createNumberDetector(Paths.get("/path/to/NRNUM"), Paths.get("/path/to/NRVAR"));
   
   for (int i = 0; i < tokens.size(); i++) {
     if (numberDetector.tryToken(tokens.get(i), begins.get(i), ends.get(i))) {
@@ -62,7 +61,11 @@ private void useResults(CombinedNumberDetector detect) {
 ```
 
 ## Detecting units of measurement in text
+coming soon
 
+```java
+
+```
 
 
 ## Contact and Support
