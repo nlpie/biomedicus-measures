@@ -1,3 +1,6 @@
+
+[![](https://travis-ci.org/nlpie/biomedicus-measures.svg?branch=master)](https://travis-ci.org/nlpie/biomedicus-measures)
+
 # BioMedICUS Measures
 
 A lightweight (small and dependency-free) Java 8 library for identifying and normalizing numbers and 
