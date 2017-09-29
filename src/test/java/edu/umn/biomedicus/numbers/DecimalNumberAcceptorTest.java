@@ -19,6 +19,7 @@ package edu.umn.biomedicus.numbers;
 import static org.testng.Assert.*;
 
 import java.math.BigDecimal;
+import mockit.Injectable;
 import mockit.Tested;
 import org.testng.annotations.Test;
 
@@ -75,6 +76,7 @@ public class DecimalNumberAcceptorTest {
     assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.FRACTION);
     assertEquals(decimalNumberAcceptor.getBegin(), 0);
     assertEquals(decimalNumberAcceptor.getEnd(), 6);
+    assertTrue(decimalNumberAcceptor.getConsumedLastToken());
   }
 
   @Test
@@ -87,5 +89,30 @@ public class DecimalNumberAcceptorTest {
   public void testParseDecimalHyphen() throws Exception {
     assertFalse(decimalNumberAcceptor.tryToken("-", 0, 1));
     assertFalse(decimalNumberAcceptor.finish());
+  }
+
+  @Test
+  public void testNoIncludePercent() throws Exception {
+    DecimalNumberAcceptor decimalNumberAcceptor = new DecimalNumberAcceptor(false, false);
+    decimalNumberAcceptor.tryToken("50.05", 0, 5);
+    assertTrue(decimalNumberAcceptor.tryToken("%", 5, 6));
+    assertEquals(decimalNumberAcceptor.getNumerator().compareTo(BigDecimal.valueOf(50.05)),
+        0);
+    assertEquals(decimalNumberAcceptor.getDenominator().compareTo(BigDecimal.valueOf(1)),
+        0);
+    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.DECIMAL);
+    assertEquals(decimalNumberAcceptor.getBegin(), 0);
+    assertEquals(decimalNumberAcceptor.getEnd(), 5);
+    assertFalse(decimalNumberAcceptor.getConsumedLastToken());
+  }
+
+  @Test
+  public void testConsumedLastToken() throws Exception {
+    assertFalse(decimalNumberAcceptor.tryToken("25", 0, 2));
+    assertTrue(decimalNumberAcceptor.tryToken("5", 3, 4));
+    assertFalse(decimalNumberAcceptor.getConsumedLastToken());
+    decimalNumberAcceptor.reset();
+    assertFalse(decimalNumberAcceptor.tryToken("5", 3, 4));
+    assertTrue(decimalNumberAcceptor.finish());
   }
 }

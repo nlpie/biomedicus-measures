@@ -16,6 +16,8 @@
 
 package edu.umn.biomedicus.numbers;
 
+import javax.annotation.Nonnull;
+
 /**
  * Information about the number that a specific numeral word represents.
  *
@@ -25,6 +27,7 @@ class NumberDefinition {
 
   private final int value;
 
+  @Nonnull
   private final BasicNumberType basicNumberType;
 
   NumberDefinition(int value, BasicNumberType basicNumberType) {
@@ -46,6 +49,7 @@ class NumberDefinition {
    *
    * @return the basic number type associated with this number.
    */
+  @Nonnull
   public BasicNumberType getBasicNumberType() {
     return basicNumberType;
   }

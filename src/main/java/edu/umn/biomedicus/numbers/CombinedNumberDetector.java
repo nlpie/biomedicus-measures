@@ -22,6 +22,37 @@ import java.math.BigDecimal;
  * Detects both decimal numbers using {@link DecimalNumberAcceptor} and english numbers using {@link
  * EnglishNumeralsAcceptor}.
  *
+ * <pre>
+ *   {@code
+        Iterator<String> iterator = tokens.iterator();
+        String token = null;
+        while (true) {
+          if (token == null) {
+            if (!iterator.hasNext()) {
+              break;
+            }
+            token = iterator.next();
+          }
+
+          int begin = tokenLabel.getBegin();
+          int end = tokenLabel.getEnd();
+
+          if (numberDetector.tryToken(text, begin, end)) {
+            // do something with detected number
+            if (!numberDetector.getConsumedLastToken()) {
+              continue;
+            }
+          }
+
+          token = null;
+        }
+
+        if (numberDetector.finish()) {
+          // do something with detected number
+        }
+ *   }
+ * </pre>
+ *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>
  *
@@ -43,11 +74,12 @@ public class CombinedNumberDetector {
 
   private NumberType numberType;
 
+  private boolean consumedLastToken;
+
   CombinedNumberDetector(DecimalNumberAcceptor decimalAcceptor,
       EnglishNumeralsAcceptor englishAcceptor) {
     this.decimalAcceptor = decimalAcceptor;
     this.englishAcceptor = englishAcceptor;
-    reset();
   }
 
   /**
@@ -101,17 +133,14 @@ public class CombinedNumberDetector {
   }
 
   /**
-   * Resets this number detector, clearing the information about the last detected number and
-   * getting it ready to try to detect another number.
+   * After {@link #tryToken(String, int, int)} returns true, this stores whether or not the last
+   * token passed to this detector was consumed in creating the number. If it was not, it needs to
+   * be passed again to detect whether or not it is part of a number.
+   *
+   * @return true if the last token passed was consumed in creating the number.
    */
-  public void reset() {
-    decimalAcceptor.reset();
-    englishAcceptor.reset();
-    begin = -1;
-    end = -1;
-    numerator = null;
-    denominator = null;
-    numberType = null;
+  public boolean getConsumedLastToken() {
+    return consumedLastToken;
   }
 
   /**
@@ -136,7 +165,6 @@ public class CombinedNumberDetector {
     return false;
   }
 
-
   /**
    * Informs this instance that it is done being passed tokens, and to check if any of the tokens it
    * received previously create a number.
@@ -160,6 +188,9 @@ public class CombinedNumberDetector {
     numberType = englishAcceptor.getNumberType();
     numerator = englishAcceptor.getNumerator();
     denominator = englishAcceptor.getDenominator();
+    consumedLastToken = englishAcceptor.getConsumedLastToken();
+    englishAcceptor.reset();
+    decimalAcceptor.reset();
   }
 
   private void copyFromDecimal() {
@@ -168,5 +199,8 @@ public class CombinedNumberDetector {
     numberType = decimalAcceptor.getNumberType();
     numerator = decimalAcceptor.getNumerator();
     denominator = decimalAcceptor.getDenominator();
+    consumedLastToken = decimalAcceptor.getConsumedLastToken();
+    englishAcceptor.reset();
+    decimalAcceptor.reset();
   }
 }

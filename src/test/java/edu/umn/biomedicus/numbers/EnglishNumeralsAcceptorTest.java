@@ -27,6 +27,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class EnglishNumeralsAcceptorTest {
+
+  static NumberDefinition oneDef = new NumberDefinition(1, BasicNumberType.UNIT);
+
   static NumberDefinition fiveDef = new NumberDefinition(5, BasicNumberType.UNIT);
 
   static NumberDefinition fortyDef = new NumberDefinition(40,
@@ -46,6 +49,8 @@ public class EnglishNumeralsAcceptorTest {
   static NumberDefinition millionDef = new NumberDefinition(2, BasicNumberType.MAGNITUDE);
 
   static NumberDefinition sixths = new NumberDefinition(6, BasicNumberType.UNIT);
+
+  static NumberDefinition halfDef = new NumberDefinition(2, BasicNumberType.UNIT);
 
   @Injectable
   NumberModel numbers;
@@ -74,6 +79,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(basicNumberAcceptor.begin, 0);
     assertEquals(basicNumberAcceptor.end, 4);
     assertEquals(basicNumberAcceptor.value, 4);
+    assertTrue(basicNumberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -87,6 +93,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(basicNumberAcceptor.begin, 0);
     assertEquals(basicNumberAcceptor.end, 3);
     assertEquals(basicNumberAcceptor.value, 10);
+    assertTrue(basicNumberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -102,6 +109,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(basicNumberAcceptor.begin, 0);
     assertEquals(basicNumberAcceptor.end, 6);
     assertEquals(basicNumberAcceptor.value, 40);
+    assertFalse(basicNumberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -117,6 +125,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(basicNumberAcceptor.begin, 0);
     assertEquals(basicNumberAcceptor.end, 12);
     assertEquals(basicNumberAcceptor.value, 45);
+    assertTrue(basicNumberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -134,6 +143,24 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(basicNumberAcceptor.begin, 0);
     assertEquals(basicNumberAcceptor.end, 12);
     assertEquals(basicNumberAcceptor.value, 45);
+    assertTrue(basicNumberAcceptor.consumedLastToken);
+  }
+
+  @Test
+  public void testBasicDecadeHyphenUnrelated() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("forty"); result = fortyDef;
+      numbers.getNumberDefinition("-"); result = null; times = 2;
+    }};
+
+    assertFalse(basicNumberAcceptor.tryToken("forty", 0, 5));
+    assertFalse(basicNumberAcceptor.tryToken("-", 5, 6));
+    assertTrue(basicNumberAcceptor.tryToken("-", 6, 7));
+
+    assertEquals(basicNumberAcceptor.begin, 0);
+    assertEquals(basicNumberAcceptor.end, 5);
+    assertEquals(basicNumberAcceptor.value, 40);
+    assertFalse(basicNumberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -162,6 +189,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(numberAcceptor.value, BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(9)));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 12);
+    assertFalse(numberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -176,6 +204,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 4);
     assertEquals(numberAcceptor.value, BigDecimal.valueOf(4));
+    assertFalse(numberAcceptor.consumedLastToken);
   }
 
   @Test
@@ -264,6 +293,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(fractionAcceptor.getDenominator(), BigDecimal.valueOf(46));
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 17);
+    assertTrue(fractionAcceptor.getConsumedLastToken());
   }
 
   @Test
@@ -281,6 +311,7 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(fractionAcceptor.getDenominator(), BigDecimal.valueOf(6));
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 12);
+    assertTrue(fractionAcceptor.getConsumedLastToken());
   }
 
   @Test
@@ -299,5 +330,65 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(fractionAcceptor.getBegin(), 0);
     assertEquals(fractionAcceptor.getEnd(), 15);
     assertEquals(fractionAcceptor.getNumberType(), NumberType.FRACTION);
+    assertTrue(fractionAcceptor.getConsumedLastToken());
+  }
+
+  @Test
+  public void testFractionAcceptorNumeratorFinish() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("five"); result = fiveDef;
+      numbers.getNumberDefinition("hundred"); result = hundredDef;
+    }};
+
+    assertFalse(fractionAcceptor.tryToken("five", 0, 4));
+    assertFalse(fractionAcceptor.tryToken("hundred", 5, 12));
+    assertTrue(fractionAcceptor.finish());
+
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.valueOf(500));
+    assertEquals(fractionAcceptor.getNumberType(), NumberType.CARDINAL);
+    assertEquals(fractionAcceptor.getBegin(), 0);
+    assertEquals(fractionAcceptor.getEnd(), 12);
+  }
+
+  @Test
+  public void testConsumedLastToken() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("five"); result = fiveDef;
+      numbers.getNumberDefinition("5"); result = null;
+    }};
+
+    assertFalse(fractionAcceptor.tryToken("five", 0, 4));
+    assertTrue(fractionAcceptor.tryToken("5", 5, 6));
+    assertFalse(fractionAcceptor.getConsumedLastToken());
+  }
+
+  @Test
+  public void testOneHalf() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("one"); result = oneDef;
+      numbers.getNumberDefinition("half"); result = null;
+      numbers.getDenominator("half"); result = halfDef;
+    }};
+
+    assertFalse(fractionAcceptor.tryToken("one", 0, 3));
+    assertTrue(fractionAcceptor.tryToken("half", 4, 8));
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.ONE);
+    assertEquals(fractionAcceptor.getDenominator(), new BigDecimal(2));
+  }
+
+  @Test
+  public void testOneHyphenHalf() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("one"); result = oneDef;
+      numbers.getNumberDefinition("half"); result = null;
+      numbers.getDenominator("half"); result = halfDef;
+
+    }};
+
+    assertFalse(fractionAcceptor.tryToken("one", 0, 3));
+    assertFalse(fractionAcceptor.tryToken("-", 3, 4));
+    assertTrue(fractionAcceptor.tryToken("half", 4, 8));
+    assertEquals(fractionAcceptor.getNumerator(), BigDecimal.ONE);
+    assertEquals(fractionAcceptor.getDenominator(), new BigDecimal(2));
   }
 }

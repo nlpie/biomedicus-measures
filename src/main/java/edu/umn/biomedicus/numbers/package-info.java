@@ -16,6 +16,8 @@
 
 /**
  * Classes for the detection of numbers in token sequences.
+ *
+ * @since 1.0.0
  */
 @ParametersAreNonnullByDefault
 package edu.umn.biomedicus.numbers;

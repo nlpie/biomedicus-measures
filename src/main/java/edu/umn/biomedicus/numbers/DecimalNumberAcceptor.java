@@ -21,6 +21,36 @@ import java.math.BigDecimal;
 /**
  * Finds decimal numbers in text, including fractions like 1 / 2 separated over separate tokens.
  * Also detects hybrid ordinals, like "1st" "2nd" "3rd", etc.
+ *<pre>
+ *   {@code
+        Iterator<String> iterator = tokens.iterator();
+        String token = null;
+        while (true) {
+          if (token == null) {
+            if (!iterator.hasNext()) {
+              break;
+            }
+            token = iterator.next();
+          }
+
+          int begin = tokenLabel.getBegin();
+          int end = tokenLabel.getEnd();
+
+          if (numberDetector.tryToken(text, begin, end)) {
+            // do something with detected number
+            if (!numberDetector.getConsumedLastToken()) {
+              continue;
+            }
+          }
+
+          token = null;
+        }
+
+        if (numberDetector.finish()) {
+          // do something with detected number
+        }
+ *   }
+ * </pre>
  *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>
@@ -28,6 +58,10 @@ import java.math.BigDecimal;
  * @since 1.0.0
  */
 public class DecimalNumberAcceptor {
+
+  private final boolean includePercent;
+
+  private final boolean includeFractions;
 
   private int begin;
 
@@ -43,10 +77,27 @@ public class DecimalNumberAcceptor {
 
   private boolean fraction;
 
+  private boolean consumedLastToken;
+
+
   /**
-   * Default constructor.
+   * Default constructor, includes fractions and percents.
    */
   public DecimalNumberAcceptor() {
+    this.includePercent = true;
+    this.includeFractions = true;
+    reset();
+  }
+
+  /**
+   * Constructor where you can specify whether or not to include percents, and whether or not to
+   * include fractions.
+   *
+   * @param includePercent whether or not to include the percent symbol.
+   */
+  public DecimalNumberAcceptor(boolean includePercent, boolean includeFractions) {
+    this.includePercent = includePercent;
+    this.includeFractions = includeFractions;
     reset();
   }
 
@@ -77,25 +128,41 @@ public class DecimalNumberAcceptor {
   }
 
   /**
+   * Returns the numerator of a detected number.
    *
-   * @return
+   * @return BigDecimal numerator
    */
   public BigDecimal getNumerator() {
     return numerator;
   }
 
   /**
+   * Returns the denominator of a detected number or {@link BigDecimal#ONE} if the number is not a
+   * fraction.
    *
-   * @return
+   * @return the BigDecimal format denominator of a detected number
    */
   public BigDecimal getDenominator() {
     return denominator;
   }
 
+  /**
+   * Returns the number type.
+   *
+   * @return the type of number, will either be {@link NumberType#DECIMAL} or
+   * {@link NumberType#FRACTION}.
+   */
   public NumberType getNumberType() {
     return numberType;
   }
 
+  public boolean getConsumedLastToken() {
+    return consumedLastToken;
+  }
+
+  /**
+   * Resets the acceptor to a state where it's ready for the next number.
+   */
   public void reset() {
     begin = -1;
     end = -1;
@@ -116,17 +183,19 @@ public class DecimalNumberAcceptor {
   public boolean tryToken(CharSequence token, int tokenBegin, int tokenEnd) {
     if (numerator != null) {
       if (!fraction) {
-        if (token.equals("/")) {
+        if (includeFractions && token.equals("/")) {
           fraction = true;
           return false;
-        } else if (token.equals("%")) {
+        } else if (includePercent && token.equals("%")) {
           denominator = BigDecimal.valueOf(100);
           numberType = NumberType.FRACTION;
           end = tokenEnd;
+          consumedLastToken = true;
           return true;
         } else {
           numberType = NumberType.DECIMAL;
           denominator = BigDecimal.ONE;
+          consumedLastToken = false;
           return true;
         }
       }
@@ -166,7 +235,7 @@ public class DecimalNumberAcceptor {
         period = digits.length();
       } else if (Character.isDigit(ch)) {
         digits.append(ch);
-      } else if (i == token.length() - 1 && ch == '%') {
+      } else if (includePercent && i == token.length() - 1 && ch == '%') {
         percentage = true;
       } else {
         if (i + 1 < token.length()) {
@@ -181,6 +250,7 @@ public class DecimalNumberAcceptor {
         if (numerator != null) {
           denominator = BigDecimal.ONE;
           numberType = NumberType.DECIMAL;
+          consumedLastToken = false;
           return true;
         }
 
@@ -189,6 +259,7 @@ public class DecimalNumberAcceptor {
     }
 
     if (digits.length() == 0) {
+      consumedLastToken = false;
       return numerator != null;
     }
 
@@ -219,11 +290,16 @@ public class DecimalNumberAcceptor {
       numerator = value;
       begin = tokenBegin;
       end = tokenEnd;
+      if (!includeFractions && !includePercent) {
+        consumedLastToken = true;
+        return true;
+      }
       return false;
     } else {
       denominator = value;
       end = tokenEnd;
       numberType = NumberType.FRACTION;
+      consumedLastToken = true;
       return true;
     }
   }

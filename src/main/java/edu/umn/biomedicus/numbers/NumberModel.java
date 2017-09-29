@@ -16,7 +16,9 @@
 
 package edu.umn.biomedicus.numbers;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -45,6 +47,63 @@ public class NumberModel {
     this.numbers = numbers;
     this.ordinals = ordinals;
     this.denominators = denominators;
+  }
+
+  /**
+   * Loads the numbers and their variants from SPECIALIST LEXICON NRNUM and NRVAR file, using
+   * versions that are on the classpath.
+   *
+   * @return newly created number model instance.
+   * @throws IOException if there are any issues loading the files.
+   */
+  public static NumberModel createNumberModel() throws IOException {
+    Map<String, NumberDefinition> numbers = new HashMap<>();
+
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+        NumberModel.class.getClassLoader().getResourceAsStream(
+            "edu/umn/biomedicus/measures/NRNUM")))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] split = line.split("\\|");
+        String word = split[1];
+        BasicNumberType basicNumberType = typeFromString(split[2]);
+
+        int value;
+        if (basicNumberType == BasicNumberType.MAGNITUDE) {
+          value = Integer.valueOf(split[5]);
+        } else {
+          value = Integer.valueOf(split[3]);
+        }
+
+        NumberDefinition numberDefinition = new NumberDefinition(value, basicNumberType);
+        numbers.put(word, numberDefinition);
+      }
+    }
+
+    Map<String, NumberDefinition> ordinals = new HashMap<>();
+    Map<String, NumberDefinition> denominators = new HashMap<>();
+
+
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+        NumberModel.class.getClassLoader().getResourceAsStream(
+            "edu/umn/biomedicus/measures/NRVAR")))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        String[] split = line.split("\\|");
+        String word = split[0];
+        String types = split[2];
+        String norm = split[3];
+        NumberDefinition numberDefinition = numbers.get(norm);
+        if (types.contains("ordinal")) {
+          ordinals.put(word, numberDefinition);
+        }
+        if (types.contains("denominator")) {
+          denominators.put(word, numberDefinition);
+        }
+      }
+    }
+
+    return new NumberModel(numbers, ordinals, denominators);
   }
 
   /**
