@@ -24,6 +24,11 @@
   <artifactId>biomedicus-measures</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -71,4 +76,32 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <organization>
+    <name>University of Minnesota Institute for Health Informatics NLP/IE Program</name>
+    <url>http://www.bmhi.umn.edu/ihi/research/nlpie/index.htm</url>
+  </organization>
+  <developers>
+    <developer>
+      <name>Ben Knoll</name>
+      <email>benknoll@umn.edu</email>
+      <organization>
+        NLP/IE Group at the University of Minnesota Institute for Health Informatics
+      </organization>
+      <organizationUrl>http://www.bmhi.umn.edu/ihi/research/nlpie/index.htm</organizationUrl>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>A business-friendly OSS license</comments>
+    </license>
+  </licenses>
+  <scm>
+    <url>https://github.com/NLPIE/BioMedICUS</url>
+    <connection>scm:git:https://github.com/nlpie/biomedicus.git</connection>
+    <developerConnection>scm:git:https://github.com/nlpie/biomedicus.git</developerConnection>
+  </scm>
 </project>
