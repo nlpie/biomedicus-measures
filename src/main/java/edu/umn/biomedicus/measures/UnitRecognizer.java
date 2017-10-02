@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  * Recognizes token sequences that are units of measure. Maps the units of measure to their Unified
  * Code of Units of Measurement code.
  *
- * <br/>Usage:
+ * <br>Usage:
  * <pre>
  *   {@code
 for(String word : sentence) {
@@ -237,6 +237,8 @@ public class UnitRecognizer {
 
     /**
      * Creates a new independent unit recognizer.
+     *
+     * @return newly created unit recognizer instance
      */
     public UnitRecognizer create() {
       return new UnitRecognizer(unitOfMeasureMap);
@@ -257,6 +259,7 @@ public class UnitRecognizer {
 
     /**
      * The begin index of the unit.
+     * @return the integer begin index / identifier
      */
     public int getBegin() {
       return begin;
@@ -264,6 +267,8 @@ public class UnitRecognizer {
 
     /**
      * The end index of the unit.
+     *
+     * @return the integer end index / identifier
      */
     public int getEnd() {
       return end;
@@ -271,6 +276,8 @@ public class UnitRecognizer {
 
     /**
      * The UCUM code for the unit.
+     *
+     * @return the UCUM code for the unit of measure
      */
     public String getCode() {
       return code;

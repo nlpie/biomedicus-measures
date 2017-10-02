@@ -22,37 +22,37 @@ import javax.annotation.Nullable;
 /**
  * Finds english numerals in text, like "one", "five eighths", or "three hundred billion and six".
  * Will look for basic cardinal and ordinal numbers as well as fractions.
- * *<pre>
+ * <pre>
  *   {@code
-        Iterator<String> iterator = tokens.iterator();
-        String token = null;
-        while (true) {
-          if (token == null) {
-            if (!iterator.hasNext()) {
-              break;
-            }
-            token = iterator.next();
-          }
-
-          int begin = tokenLabel.getBegin();
-          int end = tokenLabel.getEnd();
-
-          if (numberDetector.tryToken(text, begin, end)) {
-            // do something with detected number
-            if (!numberDetector.getConsumedLastToken()) {
-              continue;
-            }
-          }
-
-          token = null;
-        }
-
-        if (numberDetector.finish()) {
-          // do something with detected number
-        }
+ *  Iterator<String> iterator = tokens.iterator();
+ *  String token = null;
+ *  while (true) {
+ *    if (token == null) {
+ *      if (!iterator.hasNext()) {
+ *        break;
+ *      }
+ *      token = iterator.next();
+ *    }
+ *
+ *    int begin = tokenLabel.getBegin();
+ *    int end = tokenLabel.getEnd();
+ *
+ *    if (numberDetector.tryToken(text, begin, end)) {
+ *      // do something with detected number
+ *      if (!numberDetector.getConsumedLastToken()) {
+ *        continue;
+ *      }
+ *    }
+ *
+ *    token = null;
+ *  }
+ *
+ *  if (numberDetector.finish()) {
+ *  // do something with detected number
+ *  }
  *   }
  * </pre>
-
+ *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>
  *
@@ -79,8 +79,6 @@ public class EnglishNumeralsAcceptor {
 
   private boolean consumedLastToken;
 
-  private boolean hyphened;
-
   EnglishNumeralsAcceptor(NonFractionAcceptor nonFractionAcceptor) {
     this.nonFractionAcceptor = nonFractionAcceptor;
   }
@@ -89,6 +87,7 @@ public class EnglishNumeralsAcceptor {
    * Returns a new EnglishNumeralsAcceptor.
    *
    * @param numberModel the number model to use
+   * @return newly create acceptor
    */
   public static EnglishNumeralsAcceptor create(NumberModel numberModel) {
     return new EnglishNumeralsAcceptor(new NonFractionAcceptor(numberModel,
@@ -96,8 +95,10 @@ public class EnglishNumeralsAcceptor {
   }
 
   /**
-   * Returns the numerator of a detected number after {@link #tryToken(String, int, int)} or
-   * {@link #finish()} has returned true.
+   * Returns the numerator of a detected number after {@link #tryToken(String, int, int)} or {@link
+   * #finish()} has returned true.
+   *
+   * @return big decimal numerator value
    */
   @Nullable
   public BigDecimal getNumerator() {
@@ -107,6 +108,8 @@ public class EnglishNumeralsAcceptor {
   /**
    * Returns the denominator of a detected number after {@link #tryToken(String, int, int)} or
    * {@link #finish()} has returned true.
+   *
+   * @return big decimal denominator value
    */
   @Nullable
   public BigDecimal getDenominator() {
@@ -116,22 +119,28 @@ public class EnglishNumeralsAcceptor {
   /**
    * Returns the begin index of a detected number after {@link #tryToken(String, int, int)} or
    * {@link #finish()} has returned true.
+   *
+   * @return integer begin index / identifier
    */
   public int getBegin() {
     return begin;
   }
 
   /**
-   * Returns the end index of a detected number after {@link #tryToken(String, int, int)} or
-   * {@link #finish()} has returned true.
+   * Returns the end index of a detected number after {@link #tryToken(String, int, int)} or {@link
+   * #finish()} has returned true.
+   *
+   * @return integer end index / identifier
    */
   public int getEnd() {
     return end;
   }
 
   /**
-   * Returns the {@link NumberType} of a detected number after {@link #tryToken(String, int, int)} or
-   * {@link #finish()} has returned true.
+   * Returns the {@link NumberType} of a detected number after {@link #tryToken(String, int, int)}
+   * or {@link #finish()} has returned true.
+   *
+   * @return number type of the number
    */
   @Nullable
   public NumberType getNumberType() {
@@ -142,6 +151,8 @@ public class EnglishNumeralsAcceptor {
    * After {@link #tryToken(String, int, int)} returns true, will be true if the last token that was
    * passed to this method was consumed in creating the number, if not the token will need to be
    * passed to {@link #tryToken(String, int, int)} again.
+   *
+   * @return true if last token was consumed false otherwise
    */
   public boolean getConsumedLastToken() {
     return consumedLastToken;
@@ -156,7 +167,6 @@ public class EnglishNumeralsAcceptor {
     nonFractionAcceptor.reset();
     numberType = null;
     andHalf = 0;
-    hyphened = false;
   }
 
   /**
@@ -189,7 +199,6 @@ public class EnglishNumeralsAcceptor {
   public boolean tryToken(String token, int tokenBegin, int tokenEnd) {
     if (numerator == null) {
       if ("-".equals(token)) {
-        hyphened = true;
       }
 
       if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {

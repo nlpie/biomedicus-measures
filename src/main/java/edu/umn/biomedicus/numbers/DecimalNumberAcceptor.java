@@ -21,34 +21,34 @@ import java.math.BigDecimal;
 /**
  * Finds decimal numbers in text, including fractions like 1 / 2 separated over separate tokens.
  * Also detects hybrid ordinals, like "1st" "2nd" "3rd", etc.
- *<pre>
+ * <pre>
  *   {@code
-        Iterator<String> iterator = tokens.iterator();
-        String token = null;
-        while (true) {
-          if (token == null) {
-            if (!iterator.hasNext()) {
-              break;
-            }
-            token = iterator.next();
-          }
-
-          int begin = tokenLabel.getBegin();
-          int end = tokenLabel.getEnd();
-
-          if (numberDetector.tryToken(text, begin, end)) {
-            // do something with detected number
-            if (!numberDetector.getConsumedLastToken()) {
-              continue;
-            }
-          }
-
-          token = null;
-        }
-
-        if (numberDetector.finish()) {
-          // do something with detected number
-        }
+ * Iterator<String> iterator = tokens.iterator();
+ * String token = null;
+ * while (true) {
+ *  if (token == null) {
+ *    if (!iterator.hasNext()) {
+ *      break;
+ *    }
+ *    token = iterator.next();
+ *  }
+ *
+ *  int begin = tokenLabel.getBegin();
+ *  int end = tokenLabel.getEnd();
+ *
+ *  if (numberDetector.tryToken(text, begin, end)) {
+ *    // do something with detected number
+ *    if (!numberDetector.getConsumedLastToken()) {
+ *      continue;
+ *    }
+ *  }
+ *
+ *  token = null;
+ * }
+ *
+ * if (numberDetector.finish()) {
+ *  // do something with detected number
+ * }
  *   }
  * </pre>
  *
@@ -79,7 +79,6 @@ public class DecimalNumberAcceptor {
 
   private boolean consumedLastToken;
 
-
   /**
    * Default constructor, includes fractions and percents.
    */
@@ -94,6 +93,7 @@ public class DecimalNumberAcceptor {
    * include fractions.
    *
    * @param includePercent whether or not to include the percent symbol.
+   * @param includeFractions whether or not to include x / y fractions
    */
   public DecimalNumberAcceptor(boolean includePercent, boolean includeFractions) {
     this.includePercent = includePercent;
@@ -102,8 +102,8 @@ public class DecimalNumberAcceptor {
   }
 
   /**
-   * Returns the begin of the detected number. Not valid until
-   * {@link #tryToken(CharSequence, int, int)} or {@link #finish()} have returned true.
+   * Returns the begin of the detected number. Not valid until {@link #tryToken(CharSequence, int,
+   * int)} or {@link #finish()} have returned true.
    *
    * @return integer begin index of the detected number.
    */
@@ -122,6 +122,8 @@ public class DecimalNumberAcceptor {
 
   /**
    * Returns whether or not the detected number is an ordinal.
+   *
+   * @return true if the number is an ordinal false otherwise
    */
   public boolean isOrdinal() {
     return isOrdinal;
@@ -149,13 +151,20 @@ public class DecimalNumberAcceptor {
   /**
    * Returns the number type.
    *
-   * @return the type of number, will either be {@link NumberType#DECIMAL} or
-   * {@link NumberType#FRACTION}.
+   * @return the type of number, will either be {@link NumberType#DECIMAL} or {@link
+   * NumberType#FRACTION}.
    */
   public NumberType getNumberType() {
     return numberType;
   }
 
+  /**
+   * Returns whether the decimal number acceptor consumed the last token that was passed into {@link
+   * #tryToken(CharSequence, int, int)} that caused it to return true was consumed in creating the
+   * number.
+   *
+   * @return true if the number was consumed, false otherwise
+   */
   public boolean getConsumedLastToken() {
     return consumedLastToken;
   }
@@ -179,6 +188,9 @@ public class DecimalNumberAcceptor {
    * was just passed.
    *
    * @param token text to parse
+   * @param tokenBegin the begin index/identifier to get returned if the token is part of a number
+   * @param tokenEnd the end index/identifier to get returned if the token is a part of a number
+   * @return true if the token finalized any number in progress in this acceptor, false otherwise
    */
   public boolean tryToken(CharSequence token, int tokenBegin, int tokenEnd) {
     if (numerator != null) {
