@@ -24,6 +24,16 @@
   <artifactId>biomedicus-measures</artifactId>
   <version>1.0.0</version>
 
+  <name>BioMedICUS Measures</name>
+
+  <description>
+    A lightweight (small and dependency-free) Java 8 library for identifying and
+    normalizing numbers and measurements in text. This was developed as a stand-alone component of
+    BioMedICUS, a biomedical and clinical NLP engine developed by the NLP-IE Group at the University
+    of Minnesota Institute for Health Informatics.
+  </description>
+  <url>https://github.com/nlpie/biomedicus-measures</url>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
