@@ -36,37 +36,51 @@ You can find the api documentation for this project [here](https://nlpie.github.
 ## Detecting numbers in text
 
 ```java
-private void detectNumbers() {
-  CombinedNumberDetector detect = Numbers
-      .createNumberDetector(Paths.get("/path/to/NRNUM"), Paths.get("/path/to/NRVAR"));
-  
-  for (int i = 0; i < tokens.size(); i++) {
-    if (numberDetector.tryToken(tokens.get(i), begins.get(i), ends.get(i))) {
-      useResults(detect);
+Iterator<String> iterator = tokens.iterator();
+String token = null;
+while (true) {
+  if (token == null) {
+    if (!iterator.hasNext()) {
+      break;
+    }
+    token = iterator.next();
+  }
+
+  int begin = tokenLabel.getBegin();
+  int end = tokenLabel.getEnd();
+
+  if (numberDetector.tryToken(text, begin, end)) {
+    // do something with detected number
+    if (!numberDetector.getConsumedLastToken()) {
+      continue;
     }
   }
-  
-  if (detect.finish()) {
-    useResults(detect);
-  }
+
+  token = null;
 }
 
-private void useResults(CombinedNumberDetector detect) {
-  int numberBegin = detect.getBegin();
-  int numberEnd = detect.getEnd();
-  BigDecimal numberNumerator = detect.getNumerator();
-  BigDecimal numberDenominator = detect.getDenominator();
-  NumberType numberType = detect.getNumberType();
-  // do something with results
-  detect.reset();
+if (numberDetector.finish()) {
+  // do something with detected number
 }
 
 ```
 
 ## Detecting units of measurement in text
-coming soon
-
 ```java
+for(String word : sentence) {
+  Optional<Result> potentialResult = unitRecognizer.advance(word, index, index + word.length());
+  if (potentialResult.isPresent()) {
+    Result result = potentialResult.get();
+    // do stuff with result.
+  }
+  index += word.length();
+}
+Optional<Result> potentialResult = unitRecognizer.finish();
+if (potentialResult.isPresent()) {
+  Result result = potentialResult.get();
+  int begin = result.getBegin();
+  int end = result.getEnd();
+}
 
 ```
 

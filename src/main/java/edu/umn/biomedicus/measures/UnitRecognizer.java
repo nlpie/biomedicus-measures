@@ -34,21 +34,20 @@ import java.util.regex.Pattern;
  * <br/>Usage:
  * <pre>
  *   {@code
- *      for(String word : sentence) {
- *        Optional<Result> potentialResult = unitRecognizer.advance(word, index, index + word.length());
- *        if (potentialResult.isPresent()) {
- *          Result result = potentialResult.get();
- *          // do stuff with result.
- *        }
- *        index += word.length();
- *      }
- *      Optional<Result> potentialResult = unitRecognizer.finish();
- *      if (potentialResult.isPresent()) {
- *        Result result = potentialResult.get();
- *        int begin = result.getBegin();
- *        int end = result.getEnd();
- *      }
- *
+for(String word : sentence) {
+  Optional<Result> potentialResult = unitRecognizer.advance(word, index, index + word.length());
+  if (potentialResult.isPresent()) {
+    Result result = potentialResult.get();
+    // do stuff with result.
+  }
+  index += word.length();
+}
+Optional<Result> potentialResult = unitRecognizer.finish();
+if (potentialResult.isPresent()) {
+  Result result = potentialResult.get();
+  int begin = result.getBegin();
+  int end = result.getEnd();
+}
  *   }
  * </pre>
  *
