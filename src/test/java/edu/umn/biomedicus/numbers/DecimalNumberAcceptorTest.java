@@ -16,10 +16,11 @@
 
 package edu.umn.biomedicus.numbers;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 import java.math.BigDecimal;
-import mockit.Injectable;
 import mockit.Tested;
 import org.testng.annotations.Test;
 
@@ -29,90 +30,54 @@ public class DecimalNumberAcceptorTest {
 
   @Test
   public void testParseDecimalComma() throws Exception {
-    decimalNumberAcceptor.tryToken("42,000", 0, 6);
+    NumberResult result = decimalNumberAcceptor.tryToken("42,000", 0, 6);
 
-    assertTrue(decimalNumberAcceptor.finish());
-    assertEquals(decimalNumberAcceptor.getNumerator()
-        .compareTo(BigDecimal.valueOf(42_000)), 0);
-    assertEquals(decimalNumberAcceptor.getDenominator()
-        .compareTo(BigDecimal.ONE), 0);
-    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.DECIMAL);
-    assertEquals(decimalNumberAcceptor.getBegin(), 0);
-    assertEquals(decimalNumberAcceptor.getEnd(), 6);
+    assertNotNull(result);
+    assertEquals(result.getNumerator().compareTo(BigDecimal.valueOf(42_000)), 0);
+    assertEquals(result.getDenominator().compareTo(BigDecimal.ONE), 0);
+    assertEquals(result.getNumberType(), NumberType.DECIMAL);
+    assertEquals(result.getBegin(), 0);
+    assertEquals(result.getEnd(), 6);
   }
 
   @Test
   public void testParseDecimalCommaAndDecimal() throws Exception {
-    decimalNumberAcceptor.tryToken("42,000,000.00", 0, 12);
-    assertTrue(decimalNumberAcceptor.finish());
-    assertEquals(decimalNumberAcceptor.getNumerator()
-        .compareTo(BigDecimal.valueOf(42_000_000.00)), 0);
-    assertEquals(decimalNumberAcceptor.getDenominator().compareTo(BigDecimal.ONE), 0);
-    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.DECIMAL);
-    assertEquals(decimalNumberAcceptor.getBegin(), 0);
-    assertEquals(decimalNumberAcceptor.getEnd(), 12);
+    NumberResult result = decimalNumberAcceptor.tryToken("42,000,000.00", 0, 12);
+
+    assertNotNull(result);
+    assertEquals(result.getNumerator().compareTo(BigDecimal.valueOf(42_000_000.00)), 0);
+    assertEquals(result.getDenominator().compareTo(BigDecimal.ONE), 0);
+    assertEquals(result.getNumberType(), NumberType.DECIMAL);
+    assertEquals(result.getBegin(), 0);
+    assertEquals(result.getEnd(), 12);
   }
 
   @Test
   public void testParseDecimal() throws Exception {
-    decimalNumberAcceptor.tryToken("450.01", 0, 6);
-    assertTrue(decimalNumberAcceptor.finish());
-    assertEquals(decimalNumberAcceptor.getNumerator().compareTo(BigDecimal.valueOf(450.01)),
-        0);
-    assertEquals(decimalNumberAcceptor.getDenominator().compareTo(BigDecimal.ONE), 0);
-    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.DECIMAL);
-    assertEquals(decimalNumberAcceptor.getBegin(), 0);
-    assertEquals(decimalNumberAcceptor.getEnd(), 6);
-  }
+    NumberResult result = decimalNumberAcceptor.tryToken("450.01", 0, 6);
 
-  @Test
-  public void testParseDecimalPercentage() throws Exception {
-    decimalNumberAcceptor.tryToken("50.05", 0, 5);
-    assertTrue(decimalNumberAcceptor.tryToken("%", 5, 6));
-    assertEquals(decimalNumberAcceptor.getNumerator().compareTo(BigDecimal.valueOf(50.05)),
-        0);
-    assertEquals(decimalNumberAcceptor.getDenominator().compareTo(BigDecimal.valueOf(100)),
-        0);
-    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.FRACTION);
-    assertEquals(decimalNumberAcceptor.getBegin(), 0);
-    assertEquals(decimalNumberAcceptor.getEnd(), 6);
-    assertTrue(decimalNumberAcceptor.getConsumedLastToken());
-  }
-
-  @Test
-  public void testParseDecimalNoDecimal() throws Exception {
-    assertFalse(decimalNumberAcceptor.tryToken("test", 0, 4));
-    assertFalse(decimalNumberAcceptor.finish());
+    assertNotNull(result);
+    assertEquals(result.getNumerator().compareTo(BigDecimal.valueOf(450.01)), 0);
+    assertEquals(result.getDenominator().compareTo(BigDecimal.ONE), 0);
+    assertEquals(result.getNumberType(), NumberType.DECIMAL);
+    assertEquals(result.getBegin(), 0);
+    assertEquals(result.getEnd(), 6);
   }
 
   @Test
   public void testParseDecimalHyphen() throws Exception {
-    assertFalse(decimalNumberAcceptor.tryToken("-", 0, 1));
-    assertFalse(decimalNumberAcceptor.finish());
+    assertNull(decimalNumberAcceptor.tryToken("-", 0, 1));
   }
 
   @Test
-  public void testNoIncludePercent() throws Exception {
-    DecimalNumberAcceptor decimalNumberAcceptor = new DecimalNumberAcceptor(false, false);
-    decimalNumberAcceptor.tryToken("50.05", 0, 5);
-    assertTrue(decimalNumberAcceptor.tryToken("%", 5, 6));
-    assertEquals(decimalNumberAcceptor.getNumerator().compareTo(BigDecimal.valueOf(50.05)),
-        0);
-    assertEquals(decimalNumberAcceptor.getDenominator().compareTo(BigDecimal.valueOf(1)),
-        0);
-    assertEquals(decimalNumberAcceptor.getNumberType(), NumberType.DECIMAL);
-    assertEquals(decimalNumberAcceptor.getBegin(), 0);
-    assertEquals(decimalNumberAcceptor.getEnd(), 5);
-    assertFalse(decimalNumberAcceptor.getConsumedLastToken());
-  }
+  public void testOrdinal() throws Exception {
+    NumberResult result = decimalNumberAcceptor.tryToken("3rd", 0, 3);
 
-  @Test
-  public void testConsumedLastToken() throws Exception {
-    assertFalse(decimalNumberAcceptor.tryToken("25", 0, 2));
-    assertTrue(decimalNumberAcceptor.tryToken("5", 3, 4));
-    assertFalse(decimalNumberAcceptor.getConsumedLastToken());
-    decimalNumberAcceptor.reset();
-    assertFalse(decimalNumberAcceptor.tryToken("5", 3, 4));
-    assertTrue(decimalNumberAcceptor.finish());
+    assertNotNull(result);
+    assertEquals(result.getNumerator().compareTo(BigDecimal.valueOf(3)), 0);
+    assertEquals(result.getDenominator().compareTo(BigDecimal.ONE), 0);
+    assertEquals(result.getNumberType(), NumberType.ORDINAL);
+    assertEquals(result.getBegin(), 0);
+    assertEquals(result.getEnd(), 3);
   }
 }

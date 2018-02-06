@@ -17,6 +17,9 @@
 package edu.umn.biomedicus.numbers;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.Nullable;
 
 /**
@@ -58,7 +61,7 @@ import javax.annotation.Nullable;
  *
  * @since 1.0.0
  */
-public class EnglishNumeralsAcceptor {
+public class EnglishNumeralsAcceptor extends AbstractNumberDetector {
 
   private final NonFractionAcceptor nonFractionAcceptor;
 
@@ -77,8 +80,6 @@ public class EnglishNumeralsAcceptor {
 
   private int andHalf = 0;
 
-  private boolean consumedLastToken;
-
   EnglishNumeralsAcceptor(NonFractionAcceptor nonFractionAcceptor) {
     this.nonFractionAcceptor = nonFractionAcceptor;
   }
@@ -95,70 +96,6 @@ public class EnglishNumeralsAcceptor {
   }
 
   /**
-   * Returns the numerator of a detected number after {@link #tryToken(String, int, int)} or {@link
-   * #finish()} has returned true.
-   *
-   * @return big decimal numerator value
-   */
-  @Nullable
-  public BigDecimal getNumerator() {
-    return numerator;
-  }
-
-  /**
-   * Returns the denominator of a detected number after {@link #tryToken(String, int, int)} or
-   * {@link #finish()} has returned true.
-   *
-   * @return big decimal denominator value
-   */
-  @Nullable
-  public BigDecimal getDenominator() {
-    return denominator;
-  }
-
-  /**
-   * Returns the begin index of a detected number after {@link #tryToken(String, int, int)} or
-   * {@link #finish()} has returned true.
-   *
-   * @return integer begin index / identifier
-   */
-  public int getBegin() {
-    return begin;
-  }
-
-  /**
-   * Returns the end index of a detected number after {@link #tryToken(String, int, int)} or {@link
-   * #finish()} has returned true.
-   *
-   * @return integer end index / identifier
-   */
-  public int getEnd() {
-    return end;
-  }
-
-  /**
-   * Returns the {@link NumberType} of a detected number after {@link #tryToken(String, int, int)}
-   * or {@link #finish()} has returned true.
-   *
-   * @return number type of the number
-   */
-  @Nullable
-  public NumberType getNumberType() {
-    return numberType;
-  }
-
-  /**
-   * After {@link #tryToken(String, int, int)} returns true, will be true if the last token that was
-   * passed to this method was consumed in creating the number, if not the token will need to be
-   * passed to {@link #tryToken(String, int, int)} again.
-   *
-   * @return true if last token was consumed false otherwise
-   */
-  public boolean getConsumedLastToken() {
-    return consumedLastToken;
-  }
-
-  /**
    * Resets this number acceptor to its default state.
    */
   public void reset() {
@@ -169,119 +106,104 @@ public class EnglishNumeralsAcceptor {
     andHalf = 0;
   }
 
-  /**
-   * Returns the value of this number as a single {@link BigDecimal}.
-   *
-   * @return a {@link BigDecimal} of this number, if no number was recognized, return {@code null}.
-   */
-  @Nullable
-  public BigDecimal getValue() {
-    if (numerator == null) {
-      return null;
-    }
+  @Override
+  public List<NumberResult> tryToken(String token, int tokenBegin, int tokenEnd) {
+    NumberResult previous = null;
+    while (true) {
+      if (numerator == null) {
+        if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
+          numerator = nonFractionAcceptor.value;
+          begin = nonFractionAcceptor.begin;
+          end = nonFractionAcceptor.end;
+          nonFractionAcceptor.reset();
+          nonFractionAcceptor.setDenominator();
 
-    if (denominator == null) {
-      return numerator;
-    }
+          if (nonFractionAcceptor.isOrdinal) {
+            numberType = NumberType.ORDINAL;
+            NumberResult current = new NumberResult(begin, end, numerator, BigDecimal.ONE,
+                numberType);
+            reset();
+            return previous != null ? Arrays.asList(previous, current) : Collections.singletonList(current);
+          }
 
-    return numerator.divide(denominator, BigDecimal.ROUND_HALF_UP);
-  }
+          numberType = NumberType.CARDINAL;
 
-  /**
-   * Sends the acceptor the token, which then checks it against the current state to try to detect
-   * numbers in an ongoing stream of tokens.
-   *
-   * @param token the token to test
-   * @param tokenBegin the beginning index of the token
-   * @param tokenEnd the end index of the token.
-   * @return true if with the token passed a number was recognized, false otherwise
-   */
-  public boolean tryToken(String token, int tokenBegin, int tokenEnd) {
-    if (numerator == null) {
-      if ("-".equals(token)) {
+          if (nonFractionAcceptor.consumedLastToken) {
+            return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
+          }
+        } else {
+          return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
+        }
       }
 
-      if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
-        numerator = nonFractionAcceptor.value;
-        begin = nonFractionAcceptor.begin;
+      if (token.equals("-")) {
+        return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
+      } else if (andHalf == 1 && token.equalsIgnoreCase("a")) {
+        andHalf = 2;
+      } else if (andHalf == 2 && token.equalsIgnoreCase("half")) {
+        denominator = BigDecimal.valueOf(2);
+        numerator = numerator.multiply(denominator).add(BigDecimal.ONE);
+        numberType = NumberType.FRACTION;
+        end = tokenEnd;
+        NumberResult halfResult = stateToResult();
+        reset();
+        return Collections.singletonList(halfResult);
+      } else if (token.equalsIgnoreCase("and")) {
+        andHalf = 1;
+      } else if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
+        denominator = nonFractionAcceptor.value;
         end = nonFractionAcceptor.end;
-        nonFractionAcceptor.reset();
-        nonFractionAcceptor.setDenominator();
+        numberType = NumberType.FRACTION;
 
-        if (nonFractionAcceptor.isOrdinal) {
-          numberType = NumberType.ORDINAL;
-          consumedLastToken = true;
-          return true;
-        }
-
-        numberType = NumberType.CARDINAL;
+        previous = stateToResult();
 
         if (nonFractionAcceptor.consumedLastToken) {
-          return false;
+          reset();
+          return Collections.singletonList(previous);
+        } else {
+          continue;
         }
       } else {
-        return false;
-      }
-    }
+        if (!nonFractionAcceptor.inProgress()) {
+          denominator = BigDecimal.ONE;
+          if (previous != null) {
+            throw new IllegalStateException("Losing a value before returning it.");
+          }
+          previous = stateToResult();
+          reset();
+        }
 
-    if (token.equals("-")) {
-      return false;
-    } else if (andHalf == 1 && token.equalsIgnoreCase("a")) {
-      andHalf = 2;
-    } else if (andHalf == 2 && token.equalsIgnoreCase("half")) {
-      denominator = BigDecimal.valueOf(2);
-      numerator = numerator.multiply(denominator).add(BigDecimal.ONE);
-      numberType = NumberType.FRACTION;
-      end = tokenEnd;
-      consumedLastToken = true;
-      return true;
-    } else if (token.equalsIgnoreCase("and")) {
-      andHalf = 1;
-    } else if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
-      denominator = nonFractionAcceptor.value;
-      end = nonFractionAcceptor.end;
-      numberType = NumberType.FRACTION;
-      consumedLastToken = nonFractionAcceptor.consumedLastToken;
-      return true;
-    } else {
-      if (!nonFractionAcceptor.inProgress()) {
-        consumedLastToken = false;
-        return true;
+        if (!nonFractionAcceptor.consumedLastToken) {
+          continue;
+        }
       }
+      return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
     }
-    return false;
   }
 
-  /**
-   * After all tokens have been passed, this method is called to check whether or not the tokens
-   * that had been previously passed contain any numbers.
-   *
-   * @return true if a number was detected, false otherwise
-   */
-  public boolean finish() {
+  @Override
+  public List<NumberResult> finish() {
     if (numerator == null) {
       if (nonFractionAcceptor.finish()) {
         numerator = nonFractionAcceptor.value;
         begin = nonFractionAcceptor.begin;
         end = nonFractionAcceptor.end;
-        nonFractionAcceptor.reset();
         if (nonFractionAcceptor.isOrdinal) {
           numberType = NumberType.ORDINAL;
         } else {
           numberType = NumberType.CARDINAL;
         }
-        return true;
+        return Collections.singletonList(stateToResult());
       }
     } else {
       if (nonFractionAcceptor.finish()) {
         denominator = nonFractionAcceptor.value;
         end = nonFractionAcceptor.end;
         numberType = NumberType.FRACTION;
-        nonFractionAcceptor.reset();
-        return true;
+        return Collections.singletonList(stateToResult());
       }
     }
-    return false;
+    return Collections.emptyList();
   }
 
   /**
@@ -383,8 +305,8 @@ public class EnglishNumeralsAcceptor {
                 begin = tokenStart;
                 end = tokenEnd;
                 type = Type.DECADE;
+                consumedLastToken = true;
                 if (isDenominator || isOrdinal) {
-                  consumedLastToken = true;
                   return true;
                 }
                 break;
@@ -421,6 +343,10 @@ public class EnglishNumeralsAcceptor {
       }
       return false;
     }
+  }
+
+  private NumberResult stateToResult() {
+    return new NumberResult(begin, end, numerator, denominator, numberType);
   }
 
   /**
@@ -489,7 +415,9 @@ public class EnglishNumeralsAcceptor {
             return false;
           }
 
-          if (basicNumberAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
+          boolean basicTry = basicNumberAcceptor.tryToken(token, tokenBegin, tokenEnd);
+          consumedLastToken = basicNumberAcceptor.consumedLastToken;
+          if (basicTry) {
             state = State.HAS_BASIC;
             if (value == null) {
               begin = basicNumberAcceptor.begin;
@@ -499,7 +427,6 @@ public class EnglishNumeralsAcceptor {
             if (basicNumberAcceptor.isDenominator || basicNumberAcceptor.isOrdinal
                 || !basicNumberAcceptor.consumedLastToken) {
               value = BigDecimal.valueOf(valueBuilder);
-              consumedLastToken = basicNumberAcceptor.consumedLastToken;
               return true;
             }
           } else if (value != null) {
