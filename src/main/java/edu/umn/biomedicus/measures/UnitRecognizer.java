@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 /**
  * Recognizes token sequences that are units of measure. Maps the units of measure to their Unified
- * Code of Units of Measurement code.
+ * Code of Units of Measurement code. This class is currently untested and not stable.
  *
  * <br>Usage:
  * <pre>
@@ -109,7 +109,7 @@ public class UnitRecognizer {
    * @return an optional result will be present when a unit of measurement was detected.
    */
   public Optional<Result> advanceLowercased(String token, int begin, int end) {
-    if (unitOfMeasureMap.containsKey(token)) {
+    if (isUnitOfMeasureWord(token)) {
       start = begin;
       this.end = end;
     } else if (!token.equals("/") && !token.equals("per")) {
@@ -163,7 +163,10 @@ public class UnitRecognizer {
    * @return true if the string is a unit of measurement, false if it is not
    */
   public boolean isUnitOfMeasureWord(String string) {
-    return unitOfMeasureMap.containsKey(string.toLowerCase());
+    String lowercase = string.toLowerCase();
+    return unitOfMeasureMap.containsKey(lowercase) ||
+        (string.charAt(string.length() - 1) == '.'
+        && unitOfMeasureMap.containsKey(lowercase.substring(0, string.length() - 1)));
   }
 
   /**
@@ -175,7 +178,9 @@ public class UnitRecognizer {
    * @return true if the string is a unit of measurement, false if it is not.
    */
   public boolean isUnitOfMeasureWordLowercased(String lowercase) {
-    return unitOfMeasureMap.containsKey(lowercase);
+    return unitOfMeasureMap.containsKey(lowercase) ||
+        (lowercase.charAt(lowercase.length() - 1) == '.'
+        && unitOfMeasureMap.containsKey(lowercase.substring(0, lowercase.length() - 1)));
   }
 
   /**
@@ -211,13 +216,18 @@ public class UnitRecognizer {
   private static Factory createFactory(BufferedReader unitsReader)
       throws IOException {
     Map<String, String> unitsOfMeasureMap = new HashMap<>();
-    Map<String, String> subjectsMap = new HashMap<>();
 
     Pattern split = Pattern.compile(":");
 
     String line;
     while ((line = unitsReader.readLine()) != null) {
+      if (line.isEmpty()) {
+        continue;
+      }
       String[] splits = split.split(line);
+      if (splits.length != 2) {
+        continue;
+      }
       unitsOfMeasureMap.put(splits[0], splits[1]);
     }
 
