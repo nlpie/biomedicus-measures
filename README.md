@@ -22,7 +22,7 @@ To use in a maven project, include the following in your pom:
   <dependency>
     <groupId>edu.umn.biomedicus</groupId>
     <artifactId>biomedicus-measures</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
   </dependency>
 </dependencies>
 ```
@@ -36,50 +36,11 @@ You can find the api documentation for this project [here](https://nlpie.github.
 ## Detecting numbers in text
 
 ```java
-Iterator<String> iterator = tokens.iterator();
-String token = null;
-while (true) {
-  if (token == null) {
-    if (!iterator.hasNext()) {
-      break;
-    }
-    token = iterator.next();
-  }
-
-  int begin = tokenLabel.getBegin();
-  int end = tokenLabel.getEnd();
-
-  if (numberDetector.tryToken(text, begin, end)) {
-    // do something with detected number
-    if (!numberDetector.getConsumedLastToken()) {
-      continue;
-    }
-  }
-
-  token = null;
-}
-
-if (numberDetector.finish()) {
-  // do something with detected number
-}
-
-```
-
-## Detecting units of measurement in text
-```java
-for(String word : sentence) {
-  Optional<Result> potentialResult = unitRecognizer.advance(word, index, index + word.length());
-  if (potentialResult.isPresent()) {
-    Result result = potentialResult.get();
-    // do stuff with result.
-  }
-  index += word.length();
-}
-Optional<Result> potentialResult = unitRecognizer.finish();
-if (potentialResult.isPresent()) {
-  Result result = potentialResult.get();
-  int begin = result.getBegin();
-  int end = result.getEnd();
+DetectorFactory factory = Numbers.createDetectorFactory();
+CombinedNumberDetector detector = factory.createCombinedNumberDetector();
+Iterable<Token> tokens = ...
+for (NumberResult numberResult in detector.findNumbers(tokens)) {
+  // do something with the detected number
 }
 
 ```

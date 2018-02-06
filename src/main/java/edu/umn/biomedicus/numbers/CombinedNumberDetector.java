@@ -23,37 +23,6 @@ import java.util.List;
  * Detects both decimal numbers using {@link DecimalNumberAcceptor} and english numbers using {@link
  * EnglishNumeralsAcceptor}.
  *
- * <pre>
- * {@code
- * Iterator<String> iterator = tokens.iterator();
- * String token = null;
- * while (true) {
- * if (token == null) {
- * if (!iterator.hasNext()) {
- * break;
- * }
- * token = iterator.next();
- * }
- *
- * int begin = tokenLabel.getBegin();
- * int end = tokenLabel.getEnd();
- *
- * if (numberDetector.tryToken(text, begin, end)) {
- * // do something with detected number
- * if (!numberDetector.getConsumedLastToken()) {
- * continue;
- * }
- * }
- *
- * token = null;
- * }
- *
- * if (numberDetector.finish()) {
- * // do something with detected number
- * }
- * }
- * </pre>
- *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>
  *

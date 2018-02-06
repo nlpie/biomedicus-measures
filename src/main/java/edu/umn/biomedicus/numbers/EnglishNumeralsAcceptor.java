@@ -25,36 +25,6 @@ import javax.annotation.Nullable;
 /**
  * Finds english numerals in text, like "one", "five eighths", or "three hundred billion and six".
  * Will look for basic cardinal and ordinal numbers as well as fractions.
- * <pre>
- *   {@code
- *  Iterator<String> iterator = tokens.iterator();
- *  String token = null;
- *  while (true) {
- *    if (token == null) {
- *      if (!iterator.hasNext()) {
- *        break;
- *      }
- *      token = iterator.next();
- *    }
- *
- *    int begin = tokenLabel.getBegin();
- *    int end = tokenLabel.getEnd();
- *
- *    if (numberDetector.tryToken(text, begin, end)) {
- *      // do something with detected number
- *      if (!numberDetector.getConsumedLastToken()) {
- *        continue;
- *      }
- *    }
- *
- *    token = null;
- *  }
- *
- *  if (numberDetector.finish()) {
- *  // do something with detected number
- *  }
- *   }
- * </pre>
  *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>

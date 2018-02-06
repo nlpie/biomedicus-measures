@@ -21,6 +21,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Abstract superclass for number detectors, provides some functionality for detection of numbers
+ * on collections.
+ *
+ * @since 2.0.0
+ */
 public abstract class AbstractNumberDetector {
 
   /**

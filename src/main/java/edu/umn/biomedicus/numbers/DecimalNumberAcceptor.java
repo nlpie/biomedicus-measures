@@ -21,15 +21,6 @@ import javax.annotation.Nullable;
 
 /**
  * Finds decimal numbers in text. Also detects hybrid ordinals, like "1st" "2nd" "3rd", etc.
- * <pre>
- *   {@code
- * Iterator<Token> iterator = tokens.iterator();
- * while (iterator.hasNext()) {
- *   Token token = iterator.next();
- *
- * }
- * }
- * </pre>
  *
  * <p>It is not safe to use an instance of this class from multiple threads at once, use multiple
  * instances for concurrency.</p>

@@ -45,6 +45,18 @@ public class Numbers {
   }
 
   /**
+   * Creates a new combined number detector using a number model from the classpath.
+   *
+   * @return newly created combined number detector
+   * @throws IOException if we fail to load the data from the classpath
+   */
+  public static CombinedNumberDetector createNumberDetector() throws IOException {
+    NumberModel numberModel = NumberModel.createNumberModel();
+    return new CombinedNumberDetector(new FractionNumberDetector(),
+        EnglishNumeralsAcceptor.create(numberModel));
+  }
+
+  /**
    * Creates a combined number detector for both English numerals and decimal numbers using the
    * supplied paths for number model files.
    *
@@ -76,6 +88,17 @@ public class Numbers {
   ) throws IOException {
     return new DetectorFactory(NumberModel.createNumberModel(nrnumPath, nrvarPath));
   }
+
+  /**
+   * Creates a factory using NRNUM and NRVAR from the classpath.
+   *
+   * @return a factory class used to create detectors
+   * @throws IOException if we fail to read the model from the classpath
+   */
+  public static DetectorFactory createFactory() throws IOException {
+    return new DetectorFactory(NumberModel.createNumberModel());
+  }
+
 
   /**
    * A factory object to create new instances of {@link EnglishNumeralsAcceptor} and {@link
