@@ -79,7 +79,7 @@ public class EnglishNumeralsAcceptor extends AbstractNumberDetector {
   @Override
   public List<NumberResult> tryToken(String token, int tokenBegin, int tokenEnd) {
     NumberResult previous = null;
-    while (true) {
+    for (int i = 0; i < 2; i++) {
       if (numerator == null) {
         if (nonFractionAcceptor.tryToken(token, tokenBegin, tokenEnd)) {
           numerator = nonFractionAcceptor.value;
@@ -149,6 +149,7 @@ public class EnglishNumeralsAcceptor extends AbstractNumberDetector {
       }
       return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
     }
+    return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
   }
 
   @Override
