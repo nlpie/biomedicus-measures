@@ -412,4 +412,22 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(result.getNumerator(), BigDecimal.ONE);
     assertEquals(result.getDenominator(), new BigDecimal(2));
   }
+
+  @Test
+  public void testNumberUnrelated() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition("four"); result = fourDef; minTimes = 1;
+      numbers.getNumberDefinition("hours"); result = null; minTimes = 1;
+      numbers.getDenominator("hours"); result = null; minTimes = 1;
+    }};
+
+    assertTrue(fractionAcceptor.tryToken("four", 0, 4).isEmpty());
+    List<NumberResult> results = fractionAcceptor.tryToken("hours", 5, 9);
+
+    assertEquals(results.size(), 1);
+    NumberResult result = results.get(0);
+    assertEquals(result.getNumerator(), BigDecimal.valueOf(4));
+    assertEquals(result.getDenominator(), BigDecimal.valueOf(1));
+    assertEquals(result.getNumberType(), NumberType.CARDINAL);
+  }
 }
