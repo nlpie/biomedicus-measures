@@ -22,7 +22,7 @@ To use in a maven project, include the following in your pom:
   <dependency>
     <groupId>edu.umn.biomedicus</groupId>
     <artifactId>biomedicus-measures</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
   </dependency>
 </dependencies>
 ```
