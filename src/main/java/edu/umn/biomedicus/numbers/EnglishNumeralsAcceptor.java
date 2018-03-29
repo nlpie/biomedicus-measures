@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -76,8 +77,9 @@ public class EnglishNumeralsAcceptor extends AbstractNumberDetector {
     andHalf = 0;
   }
 
+  @Nonnull
   @Override
-  public List<NumberResult> tryToken(String token, int tokenBegin, int tokenEnd) {
+  public List<NumberResult> tryToken(@Nonnull String token, int tokenBegin, int tokenEnd) {
     NumberResult previous = null;
     for (int i = 0; i < 2; i++) {
       if (numerator == null) {
@@ -152,6 +154,7 @@ public class EnglishNumeralsAcceptor extends AbstractNumberDetector {
     return previous != null ? Collections.singletonList(previous) : Collections.emptyList();
   }
 
+  @Nonnull
   @Override
   public List<NumberResult> finish() {
     if (numerator == null) {

@@ -430,4 +430,13 @@ public class EnglishNumeralsAcceptorTest {
     assertEquals(result.getDenominator(), BigDecimal.valueOf(1));
     assertEquals(result.getNumberType(), NumberType.CARDINAL);
   }
+
+  @Test
+  public void testEmptyToken() throws Exception {
+    new Expectations() {{
+      numbers.getNumberDefinition(""); result = null; minTimes = 1;
+    }};
+
+    assertTrue(fractionAcceptor.tryToken("", 6, 6).isEmpty());
+  }
 }

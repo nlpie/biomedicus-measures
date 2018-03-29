@@ -29,6 +29,13 @@ public class DecimalNumberAcceptorTest {
   DecimalNumberAcceptor decimalNumberAcceptor;
 
   @Test
+  public void testEmptyToken() throws Exception {
+    NumberResult result = decimalNumberAcceptor.tryToken("", 6, 6);
+
+    assertNull(result);
+  }
+
+  @Test
   public void testParseDecimalComma() throws Exception {
     NumberResult result = decimalNumberAcceptor.tryToken("42,000", 0, 6);
 

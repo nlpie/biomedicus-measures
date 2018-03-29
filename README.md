@@ -3,8 +3,10 @@
 
 # BioMedICUS Measures
 
-A lightweight (small and dependency-free) Java 8 library for identifying and normalizing numbers and 
-measurements in text. This was developed as a stand-alone component of 
+A lightweight (small and dependency-free) Java 8 library for identifying and normalizing numbers 
+whether they occur as decimal numbers ("5.8"), decimal fractions ("1/4"), or English numerals 
+("forty-two"). Also contains functionality for detecting unit-of-measurement words. This was 
+developed as a stand-alone component of 
 [BioMedICUS](http://nlpie.github.io/biomedicus/), a biomedical and clinical NLP engine developed by 
 the NLP-IE Group at the University of Minnesota Institute for Health Informatics.
 

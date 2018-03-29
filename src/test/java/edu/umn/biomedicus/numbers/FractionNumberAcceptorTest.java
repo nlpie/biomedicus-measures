@@ -33,6 +33,25 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
+  public void testEmptyToken() throws Exception {
+    assertTrue(fractionNumberDetector.tryToken("", 6, 6).isEmpty());
+  }
+
+  @Test
+  public void testEmptyTokenAfterNumber() throws Exception {
+    assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
+    List<NumberResult> results = fractionNumberDetector.tryToken("", 2, 2);
+
+    assertEquals(results.size(), 1);
+    NumberResult numberResult = results.get(0);
+    assertEquals(numberResult.getBegin(), 0);
+    assertEquals(numberResult.getEnd(), 2);
+    assertEquals(numberResult.getNumerator().compareTo(new BigDecimal(25)), 0);
+    assertEquals(numberResult.getDenominator().compareTo(BigDecimal.ONE), 0);
+    assertEquals(numberResult.getNumberType(), NumberType.DECIMAL);
+  }
+
+  @Test
   public void testNumberNoFraction() throws Exception {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     List<NumberResult> results = fractionNumberDetector.tryToken("people", 3, 9);

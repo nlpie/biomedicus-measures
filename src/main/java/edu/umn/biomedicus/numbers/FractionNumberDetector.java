@@ -19,6 +19,7 @@ package edu.umn.biomedicus.numbers;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -70,6 +71,7 @@ public class FractionNumberDetector extends AbstractNumberDetector {
    * @param end token end offset
    * @return list of number results, if any, that are found because of the token passed in
    */
+  @Nonnull
   @Override
   public List<NumberResult> tryToken(String token, int begin, int end) {
     NumberResult next = decimalNumberAcceptor.tryToken(token, begin, end);
@@ -112,6 +114,7 @@ public class FractionNumberDetector extends AbstractNumberDetector {
    *
    * @return list of number results, if any, that are found because of the token passed in
    */
+  @Nonnull
   @Override
   public List<NumberResult> finish() {
     List<NumberResult> result;

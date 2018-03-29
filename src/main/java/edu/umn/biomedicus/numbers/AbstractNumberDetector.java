@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import javax.annotation.Nonnull;
 
 /**
  * Abstract superclass for number detectors, provides some functionality for detection of numbers
@@ -39,7 +40,8 @@ public abstract class AbstractNumberDetector {
    * @return {@code true} if this token means that this class has seen a number in the tokens that
    * have been passed to it, {@code false} otherwise.
    */
-  public abstract List<NumberResult> tryToken(String token, int tokenBegin, int tokenEnd);
+  @Nonnull
+  public abstract List<NumberResult> tryToken(@Nonnull String token, int tokenBegin, int tokenEnd);
 
   /**
    * Informs this instance that it is done being passed tokens, and to check if any of the tokens it
@@ -47,6 +49,7 @@ public abstract class AbstractNumberDetector {
    *
    * @return {@code true} if the tokens it has received contain a number, {@code false} otherwise
    */
+  @Nonnull
   public abstract List<NumberResult> finish();
 
   /**

@@ -17,6 +17,7 @@
 package edu.umn.biomedicus.numbers;
 
 import java.math.BigDecimal;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -39,8 +40,13 @@ public class DecimalNumberAcceptor {
    * @return true if the token finalized any number in progress in this acceptor, false otherwise
    */
   @Nullable
-  public NumberResult tryToken(CharSequence token, int tokenBegin, int tokenEnd) {
+  public NumberResult tryToken(@Nonnull CharSequence token, int tokenBegin, int tokenEnd) {
     boolean isOrdinal = false;
+
+    if (token.length() == 0) {
+      return null;
+    }
+
     char ch = token.charAt(0);
 
     StringBuilder digits;

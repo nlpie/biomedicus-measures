@@ -18,6 +18,7 @@ package edu.umn.biomedicus.numbers;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Detects both decimal numbers using {@link DecimalNumberAcceptor} and english numbers using {@link
@@ -40,6 +41,7 @@ public class CombinedNumberDetector extends AbstractNumberDetector {
     this.englishAcceptor = englishAcceptor;
   }
 
+  @Nonnull
   @Override
   public List<NumberResult> tryToken(String token, int tokenBegin, int tokenEnd) {
     List<NumberResult> results = fractionNumberDetector.tryToken(token, tokenBegin, tokenEnd);
@@ -57,6 +59,7 @@ public class CombinedNumberDetector extends AbstractNumberDetector {
     return Collections.emptyList();
   }
 
+  @Nonnull
   @Override
   public List<NumberResult> finish() {
     List<NumberResult> results = fractionNumberDetector.finish();
