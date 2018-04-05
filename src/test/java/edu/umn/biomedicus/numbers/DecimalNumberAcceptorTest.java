@@ -16,27 +16,28 @@
 
 package edu.umn.biomedicus.numbers;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.BigDecimal;
 import mockit.Tested;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class DecimalNumberAcceptorTest {
+class DecimalNumberAcceptorTest {
   @Tested
+  private
   DecimalNumberAcceptor decimalNumberAcceptor;
 
   @Test
-  public void testEmptyToken() throws Exception {
+  void testEmptyToken() {
     NumberResult result = decimalNumberAcceptor.tryToken("", 6, 6);
 
     assertNull(result);
   }
 
   @Test
-  public void testParseDecimalComma() throws Exception {
+  void testParseDecimalComma() {
     NumberResult result = decimalNumberAcceptor.tryToken("42,000", 0, 6);
 
     assertNotNull(result);
@@ -48,7 +49,7 @@ public class DecimalNumberAcceptorTest {
   }
 
   @Test
-  public void testParseDecimalCommaAndDecimal() throws Exception {
+  void testParseDecimalCommaAndDecimal() {
     NumberResult result = decimalNumberAcceptor.tryToken("42,000,000.00", 0, 12);
 
     assertNotNull(result);
@@ -60,7 +61,7 @@ public class DecimalNumberAcceptorTest {
   }
 
   @Test
-  public void testParseDecimal() throws Exception {
+  void testParseDecimal() {
     NumberResult result = decimalNumberAcceptor.tryToken("450.01", 0, 6);
 
     assertNotNull(result);
@@ -72,12 +73,12 @@ public class DecimalNumberAcceptorTest {
   }
 
   @Test
-  public void testParseDecimalHyphen() throws Exception {
+  void testParseDecimalHyphen() {
     assertNull(decimalNumberAcceptor.tryToken("-", 0, 1));
   }
 
   @Test
-  public void testOrdinal() throws Exception {
+  void testOrdinal() {
     NumberResult result = decimalNumberAcceptor.tryToken("3rd", 0, 3);
 
     assertNotNull(result);

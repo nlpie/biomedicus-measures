@@ -16,14 +16,14 @@
 
 package edu.umn.biomedicus.measures;
 
-import static org.testng.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnitRecognizerTest {
+class UnitRecognizerTest {
 
   @Test
-  public void testCreateFactory() throws Exception {
+  void testCreateFactory() throws Exception {
     assertNotNull(UnitRecognizer.createFactory());
   }
 }

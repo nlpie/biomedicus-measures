@@ -16,9 +16,10 @@
 
 package edu.umn.biomedicus.numbers;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.BasicNumberAcceptor;
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.NonFractionAcceptor;
@@ -26,53 +27,53 @@ import java.math.BigDecimal;
 import java.util.List;
 import mockit.Expectations;
 import mockit.Injectable;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class EnglishNumeralsAcceptorTest {
+class EnglishNumeralsAcceptorTest {
 
-  static NumberDefinition oneDef = new NumberDefinition(1, BasicNumberType.UNIT);
+  private static NumberDefinition oneDef = new NumberDefinition(1, BasicNumberType.UNIT);
 
-  static NumberDefinition fiveDef = new NumberDefinition(5, BasicNumberType.UNIT);
+  private static NumberDefinition fiveDef = new NumberDefinition(5, BasicNumberType.UNIT);
 
-  static NumberDefinition fortyDef = new NumberDefinition(40,
+  private static NumberDefinition fortyDef = new NumberDefinition(40,
       BasicNumberType.DECADE);
 
-  static NumberDefinition fourDef = new NumberDefinition(4,  BasicNumberType.UNIT);
+  private static NumberDefinition fourDef = new NumberDefinition(4,  BasicNumberType.UNIT);
 
-  static NumberDefinition tenDef = new NumberDefinition(10, BasicNumberType.TEEN);
+  private static NumberDefinition tenDef = new NumberDefinition(10, BasicNumberType.TEEN);
 
-  static NumberDefinition fifteenDef = new NumberDefinition(15,
+  private static NumberDefinition fifteenDef = new NumberDefinition(15,
       BasicNumberType.TEEN);
 
-  static NumberDefinition hundredDef = new NumberDefinition(100, BasicNumberType.MAGNITUDE);
+  private static NumberDefinition hundredDef = new NumberDefinition(100, BasicNumberType.MAGNITUDE);
 
-  static NumberDefinition billionDef = new NumberDefinition(3, BasicNumberType.MAGNITUDE);
+  private static NumberDefinition billionDef = new NumberDefinition(3, BasicNumberType.MAGNITUDE);
 
-  static NumberDefinition millionDef = new NumberDefinition(2, BasicNumberType.MAGNITUDE);
+  private static NumberDefinition millionDef = new NumberDefinition(2, BasicNumberType.MAGNITUDE);
 
-  static NumberDefinition sixths = new NumberDefinition(6, BasicNumberType.UNIT);
+  private static NumberDefinition sixths = new NumberDefinition(6, BasicNumberType.UNIT);
 
-  static NumberDefinition halfDef = new NumberDefinition(2, BasicNumberType.UNIT);
+  private static NumberDefinition halfDef = new NumberDefinition(2, BasicNumberType.UNIT);
 
   @Injectable
-  NumberModel numbers;
+  private NumberModel numbers;
 
-  EnglishNumeralsAcceptor fractionAcceptor;
+  private EnglishNumeralsAcceptor fractionAcceptor;
 
-  NonFractionAcceptor numberAcceptor;
+  private NonFractionAcceptor numberAcceptor;
 
-  BasicNumberAcceptor basicNumberAcceptor;
+  private BasicNumberAcceptor basicNumberAcceptor;
 
-  @BeforeMethod
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     basicNumberAcceptor = new BasicNumberAcceptor(numbers);
     numberAcceptor = new EnglishNumeralsAcceptor.NonFractionAcceptor(numbers, basicNumberAcceptor);
     fractionAcceptor = new EnglishNumeralsAcceptor(numberAcceptor);
   }
 
   @Test
-  public void testBasicRecognizesUnit() {
+  void testBasicRecognizesUnit() {
     new Expectations() {{
       numbers.getNumberDefinition("four"); result = fourDef;
     }};
@@ -86,7 +87,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicRecognizesTeen() throws Exception {
+  void testBasicRecognizesTeen() {
     new Expectations() {{
       numbers.getNumberDefinition("ten"); result = tenDef;
     }};
@@ -100,7 +101,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicRecognizesDecade() throws Exception {
+  void testBasicRecognizesDecade() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
       numbers.getNumberDefinition("people"); result = null;
@@ -116,7 +117,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicRecongizesDecadeAnd() throws Exception {
+  void testBasicRecongizesDecadeAnd() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
       numbers.getNumberDefinition("five"); result = fiveDef;
@@ -132,7 +133,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicRecognizesDecadeHyphen() {
+  void testBasicRecognizesDecadeHyphen() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
       numbers.getNumberDefinition("-"); result = null;
@@ -150,7 +151,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicDecadeHyphenUnrelated() throws Exception {
+  void testBasicDecadeHyphenUnrelated() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
       numbers.getNumberDefinition("-"); result = null; times = 2;
@@ -167,7 +168,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicRandomWord() throws Exception {
+  void testBasicRandomWord() {
     new Expectations() {{
       numbers.getNumberDefinition("the"); result = null;
       numbers.getOrdinal("the"); result = null;
@@ -177,7 +178,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testMagnitude() throws Exception {
+  void testMagnitude() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
       numbers.getNumberDefinition("billion"); result = billionDef;
@@ -196,7 +197,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testBasicOnly() throws Exception {
+  void testBasicOnly() {
     new Expectations() {{
       numbers.getNumberDefinition("four"); result = fourDef;
     }};
@@ -211,7 +212,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testHundred() throws Exception {
+  void testHundred() {
     new Expectations() {{
       numbers.getNumberDefinition("fifteen"); result = fifteenDef;
       numbers.getNumberDefinition("forty"); result = fortyDef;
@@ -230,7 +231,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testChained() throws Exception {
+  void testChained() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
       numbers.getNumberDefinition("billion"); result = billionDef;
@@ -250,7 +251,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testEndOfSentenceHundred() throws Exception {
+  void testEndOfSentenceHundred() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
       numbers.getNumberDefinition("hundred"); result = hundredDef;
@@ -266,7 +267,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testEndOfSentenceDecade() throws Exception {
+  void testEndOfSentenceDecade() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
     }};
@@ -280,7 +281,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testFraction() throws Exception {
+  void testFraction() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef; minTimes = 1;
       numbers.getDenominator("forty"); result = null; minTimes = 1;
@@ -301,7 +302,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testFractionTwoWordFraction() throws Exception {
+  void testFractionTwoWordFraction() {
     new Expectations() {{
       numbers.getNumberDefinition("forty"); result = fortyDef;
       numbers.getNumberDefinition("sixths"); result = null;
@@ -320,7 +321,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testAndHalf() throws Exception {
+  void testAndHalf() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
     }};
@@ -340,7 +341,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testFractionAcceptorNumeratorFinish() throws Exception {
+  void testFractionAcceptorNumeratorFinish() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
       numbers.getNumberDefinition("hundred"); result = hundredDef;
@@ -360,7 +361,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testConsumedLastToken() throws Exception {
+  void testConsumedLastToken() {
     new Expectations() {{
       numbers.getNumberDefinition("five"); result = fiveDef;
       numbers.getNumberDefinition("5"); result = null;
@@ -380,7 +381,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testOneHalf() throws Exception {
+  void testOneHalf() {
     new Expectations() {{
       numbers.getNumberDefinition("one"); result = oneDef;
       numbers.getNumberDefinition("half"); result = null;
@@ -396,7 +397,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testOneHyphenHalf() throws Exception {
+  void testOneHyphenHalf() {
     new Expectations() {{
       numbers.getNumberDefinition("one"); result = oneDef;
       numbers.getNumberDefinition("half"); result = null;
@@ -414,7 +415,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testNumberUnrelated() throws Exception {
+  void testNumberUnrelated() {
     new Expectations() {{
       numbers.getNumberDefinition("four"); result = fourDef; minTimes = 1;
       numbers.getNumberDefinition("hours"); result = null; minTimes = 1;
@@ -432,7 +433,7 @@ public class EnglishNumeralsAcceptorTest {
   }
 
   @Test
-  public void testEmptyToken() throws Exception {
+  void testEmptyToken() {
     new Expectations() {{
       numbers.getNumberDefinition(""); result = null; minTimes = 1;
     }};

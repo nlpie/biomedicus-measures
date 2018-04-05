@@ -16,29 +16,30 @@
 
 package edu.umn.biomedicus.numbers;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class FractionNumberAcceptorTest {
-  FractionNumberDetector fractionNumberDetector = new FractionNumberDetector();
+class FractionNumberAcceptorTest {
+  private FractionNumberDetector fractionNumberDetector = new FractionNumberDetector();
 
-  @BeforeMethod
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     fractionNumberDetector.reset();
   }
 
   @Test
-  public void testEmptyToken() throws Exception {
+  void testEmptyToken() {
     assertTrue(fractionNumberDetector.tryToken("", 6, 6).isEmpty());
   }
 
   @Test
-  public void testEmptyTokenAfterNumber() throws Exception {
+  void testEmptyTokenAfterNumber() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     List<NumberResult> results = fractionNumberDetector.tryToken("", 2, 2);
 
@@ -52,7 +53,7 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
-  public void testNumberNoFraction() throws Exception {
+  void testNumberNoFraction() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     List<NumberResult> results = fractionNumberDetector.tryToken("people", 3, 9);
 
@@ -66,7 +67,7 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
-  public void testNumberNoFractionFinish() throws Exception {
+  void testNumberNoFractionFinish() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     List<NumberResult> results = fractionNumberDetector.finish();
 
@@ -80,7 +81,7 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
-  public void testNumberThenFraction() throws Exception {
+  void testNumberThenFraction() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     List<NumberResult> results = fractionNumberDetector.tryToken("25", 3,  5);
 
@@ -106,7 +107,7 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
-  public void testNumberSlashNumberSlash() throws Exception {
+  void testNumberSlashNumberSlash() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     assertTrue(fractionNumberDetector.tryToken("/", 2, 3).isEmpty());
     assertTrue(fractionNumberDetector.tryToken("35", 3, 5).isEmpty());
@@ -128,7 +129,7 @@ public class FractionNumberAcceptorTest {
   }
 
   @Test
-  public void testFraction() throws Exception {
+  void testFraction() {
     assertTrue(fractionNumberDetector.tryToken("25", 0, 2).isEmpty());
     assertTrue(fractionNumberDetector.tryToken("/", 2, 3).isEmpty());
     assertTrue(fractionNumberDetector.tryToken("35", 3, 5).isEmpty());
