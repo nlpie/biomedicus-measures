@@ -20,13 +20,13 @@ package edu.umn.biomedicus.numbers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.BasicNumberAcceptor;
 import edu.umn.biomedicus.numbers.EnglishNumeralsAcceptor.NonFractionAcceptor;
 import java.math.BigDecimal;
 import java.util.List;
-import mockit.Expectations;
-import mockit.Injectable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +39,7 @@ class EnglishNumeralsAcceptorTest {
   private static NumberDefinition fortyDef = new NumberDefinition(40,
       BasicNumberType.DECADE);
 
-  private static NumberDefinition fourDef = new NumberDefinition(4,  BasicNumberType.UNIT);
+  private static NumberDefinition fourDef = new NumberDefinition(4, BasicNumberType.UNIT);
 
   private static NumberDefinition tenDef = new NumberDefinition(10, BasicNumberType.TEEN);
 
@@ -56,7 +56,6 @@ class EnglishNumeralsAcceptorTest {
 
   private static NumberDefinition halfDef = new NumberDefinition(2, BasicNumberType.UNIT);
 
-  @Injectable
   private NumberModel numbers;
 
   private EnglishNumeralsAcceptor fractionAcceptor;
@@ -67,6 +66,7 @@ class EnglishNumeralsAcceptorTest {
 
   @BeforeEach
   void setUp() {
+    numbers = mock(NumberModel.class);
     basicNumberAcceptor = new BasicNumberAcceptor(numbers);
     numberAcceptor = new EnglishNumeralsAcceptor.NonFractionAcceptor(numbers, basicNumberAcceptor);
     fractionAcceptor = new EnglishNumeralsAcceptor(numberAcceptor);
@@ -74,9 +74,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRecognizesUnit() {
-    new Expectations() {{
-      numbers.getNumberDefinition("four"); result = fourDef;
-    }};
+    when(numbers.getNumberDefinition("four")).thenReturn(fourDef);
 
     assertTrue(basicNumberAcceptor.tryToken("four", 0, 4));
 
@@ -88,9 +86,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRecognizesTeen() {
-    new Expectations() {{
-      numbers.getNumberDefinition("ten"); result = tenDef;
-    }};
+    when(numbers.getNumberDefinition("ten")).thenReturn(tenDef);
 
     assertTrue(basicNumberAcceptor.tryToken("ten", 0, 3));
 
@@ -102,10 +98,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRecognizesDecade() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("people"); result = null;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("people")).thenReturn(null);
 
     assertFalse(basicNumberAcceptor.tryToken("forty", 0, 6));
     assertTrue(basicNumberAcceptor.tryToken("people", 7, 13));
@@ -118,10 +112,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRecongizesDecadeAnd() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("five"); result = fiveDef;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
 
     assertFalse(basicNumberAcceptor.tryToken("forty", 0, 6));
     assertTrue(basicNumberAcceptor.tryToken("five", 7, 12));
@@ -134,11 +126,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRecognizesDecadeHyphen() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("-"); result = null;
-      numbers.getNumberDefinition("five"); result = fiveDef;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("-")).thenReturn(null);
+    when(numbers.getNumberDefinition("five")).thenReturn(null);
 
     assertFalse(basicNumberAcceptor.tryToken("forty", 0, 6));
     assertFalse(basicNumberAcceptor.tryToken("-", 6, 7));
@@ -152,10 +142,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicDecadeHyphenUnrelated() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("-"); result = null; times = 2;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("-")).thenReturn(null);
 
     assertFalse(basicNumberAcceptor.tryToken("forty", 0, 5));
     assertFalse(basicNumberAcceptor.tryToken("-", 5, 6));
@@ -169,28 +157,25 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicRandomWord() {
-    new Expectations() {{
-      numbers.getNumberDefinition("the"); result = null;
-      numbers.getOrdinal("the"); result = null;
-    }};
+    when(numbers.getNumberDefinition("the")).thenReturn(null);
+    when(numbers.getOrdinal("the")).thenReturn(null);
 
     assertFalse(basicNumberAcceptor.tryToken("the", 0, 3));
   }
 
   @Test
   void testMagnitude() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-      numbers.getNumberDefinition("billion"); result = billionDef;
-      numbers.getOrdinal("people"); result = null;
-      numbers.getNumberDefinition("people"); result = null;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getNumberDefinition("billion")).thenReturn(billionDef);
+    when(numbers.getOrdinal("people")).thenReturn(null);
+    when(numbers.getNumberDefinition("people")).thenReturn(null);
 
     assertFalse(numberAcceptor.tryToken("five", 0, 4));
     assertFalse(numberAcceptor.tryToken("billion", 5, 12));
     assertTrue(numberAcceptor.tryToken("people", 13, 19));
 
-    assertEquals(numberAcceptor.value, BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(9)));
+    assertEquals(numberAcceptor.value,
+        BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(10).pow(9)));
     assertEquals(numberAcceptor.begin, 0);
     assertEquals(numberAcceptor.end, 12);
     assertFalse(numberAcceptor.consumedLastToken);
@@ -198,9 +183,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testBasicOnly() {
-    new Expectations() {{
-      numbers.getNumberDefinition("four"); result = fourDef;
-    }};
+    when(numbers.getNumberDefinition("four")).thenReturn(fourDef);
 
     assertFalse(numberAcceptor.tryToken("four", 0, 4));
     assertTrue(numberAcceptor.tryToken("people", 5, 11));
@@ -213,11 +196,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testHundred() {
-    new Expectations() {{
-      numbers.getNumberDefinition("fifteen"); result = fifteenDef;
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("five"); result = fiveDef;
-    }};
+    when(numbers.getNumberDefinition("fifteen")).thenReturn(fifteenDef);
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
 
     assertFalse(numberAcceptor.tryToken("fifteen", 0, 7));
     assertFalse(numberAcceptor.tryToken("hundred", 8, 15));
@@ -232,11 +213,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testChained() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-      numbers.getNumberDefinition("billion"); result = billionDef;
-      numbers.getNumberDefinition("million"); result = millionDef;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getNumberDefinition("billion")).thenReturn(billionDef);
+    when(numbers.getNumberDefinition("million")).thenReturn(millionDef);
 
     assertFalse(numberAcceptor.tryToken("five", 0, 4));
     assertFalse(numberAcceptor.tryToken("billion", 5, 12));
@@ -252,10 +231,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testEndOfSentenceHundred() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-      numbers.getNumberDefinition("hundred"); result = hundredDef;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getNumberDefinition("hundred")).thenReturn(hundredDef);
 
     assertFalse(numberAcceptor.tryToken("five", 0, 4));
     assertFalse(numberAcceptor.tryToken("hundred", 5, 12));
@@ -268,9 +245,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testEndOfSentenceDecade() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
 
     assertFalse(numberAcceptor.tryToken("forty", 0, 5));
     assertTrue(numberAcceptor.finish());
@@ -282,12 +257,10 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testFraction() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef; minTimes = 1;
-      numbers.getDenominator("forty"); result = null; minTimes = 1;
-      numbers.getNumberDefinition("forty"); result = fortyDef; minTimes = 1;
-      numbers.getDenominator("sixths"); result = sixths; minTimes = 1;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getDenominator("forty")).thenReturn(null);
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getDenominator("sixths")).thenReturn(sixths);
 
     assertTrue(fractionAcceptor.tryToken("five", 0, 4).isEmpty());
     assertTrue(fractionAcceptor.tryToken("forty", 5, 10).isEmpty());
@@ -303,11 +276,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testFractionTwoWordFraction() {
-    new Expectations() {{
-      numbers.getNumberDefinition("forty"); result = fortyDef;
-      numbers.getNumberDefinition("sixths"); result = null;
-      numbers.getDenominator("sixths"); result = sixths;
-    }};
+    when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
+    when(numbers.getNumberDefinition("sixths")).thenReturn(null);
+    when(numbers.getDenominator("sixths")).thenReturn(sixths);
 
     assertTrue(fractionAcceptor.tryToken("forty", 0, 5).isEmpty());
     List<NumberResult> results = fractionAcceptor.tryToken("sixths", 6, 12);
@@ -322,9 +293,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testAndHalf() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
 
     assertTrue(fractionAcceptor.tryToken("five", 0, 4).isEmpty());
     assertTrue(fractionAcceptor.tryToken("and", 5, 8).isEmpty());
@@ -342,10 +311,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testFractionAcceptorNumeratorFinish() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-      numbers.getNumberDefinition("hundred"); result = hundredDef;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getNumberDefinition("hundred")).thenReturn(hundredDef);
 
     assertTrue(fractionAcceptor.tryToken("five", 0, 4).isEmpty());
     assertTrue(fractionAcceptor.tryToken("hundred", 5, 12).isEmpty());
@@ -362,10 +329,8 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testConsumedLastToken() {
-    new Expectations() {{
-      numbers.getNumberDefinition("five"); result = fiveDef;
-      numbers.getNumberDefinition("5"); result = null;
-    }};
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
+    when(numbers.getNumberDefinition("5")).thenReturn(null);
 
     assertTrue(fractionAcceptor.tryToken("five", 0, 4).isEmpty());
     List<NumberResult> results = fractionAcceptor.tryToken("5", 5, 6);
@@ -382,11 +347,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testOneHalf() {
-    new Expectations() {{
-      numbers.getNumberDefinition("one"); result = oneDef;
-      numbers.getNumberDefinition("half"); result = null;
-      numbers.getDenominator("half"); result = halfDef;
-    }};
+    when(numbers.getNumberDefinition("one")).thenReturn(oneDef);
+    when(numbers.getNumberDefinition("half")).thenReturn(null);
+    when(numbers.getDenominator("half")).thenReturn(halfDef);
 
     assertTrue(fractionAcceptor.tryToken("one", 0, 3).isEmpty());
     List<NumberResult> results = fractionAcceptor.tryToken("half", 4, 8);
@@ -398,12 +361,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testOneHyphenHalf() {
-    new Expectations() {{
-      numbers.getNumberDefinition("one"); result = oneDef;
-      numbers.getNumberDefinition("half"); result = null;
-      numbers.getDenominator("half"); result = halfDef;
-
-    }};
+    when(numbers.getNumberDefinition("one")).thenReturn(oneDef);
+    when(numbers.getNumberDefinition("half")).thenReturn(null);
+    when(numbers.getDenominator("half")).thenReturn(halfDef);
 
     assertTrue(fractionAcceptor.tryToken("one", 0, 3).isEmpty());
     assertTrue(fractionAcceptor.tryToken("-", 3, 4).isEmpty());
@@ -416,11 +376,9 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testNumberUnrelated() {
-    new Expectations() {{
-      numbers.getNumberDefinition("four"); result = fourDef; minTimes = 1;
-      numbers.getNumberDefinition("hours"); result = null; minTimes = 1;
-      numbers.getDenominator("hours"); result = null; minTimes = 1;
-    }};
+    when(numbers.getNumberDefinition("four")).thenReturn(fourDef);
+    when(numbers.getNumberDefinition("hours")).thenReturn(null);
+    when(numbers.getDenominator("hours")).thenReturn(null);
 
     assertTrue(fractionAcceptor.tryToken("four", 0, 4).isEmpty());
     List<NumberResult> results = fractionAcceptor.tryToken("hours", 5, 9);
@@ -434,9 +392,7 @@ class EnglishNumeralsAcceptorTest {
 
   @Test
   void testEmptyToken() {
-    new Expectations() {{
-      numbers.getNumberDefinition(""); result = null; minTimes = 1;
-    }};
+    when(numbers.getNumberDefinition("")).thenReturn(null);
 
     assertTrue(fractionAcceptor.tryToken("", 6, 6).isEmpty());
   }
