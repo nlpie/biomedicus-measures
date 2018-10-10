@@ -21,10 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.BigDecimal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class DecimalNumberAcceptorTest {
   private DecimalNumberAcceptor decimalNumberAcceptor;
+
+  @BeforeEach
+  void setUp() {
+    decimalNumberAcceptor = new DecimalNumberAcceptor();
+  }
 
   @Test
   void testEmptyToken() {

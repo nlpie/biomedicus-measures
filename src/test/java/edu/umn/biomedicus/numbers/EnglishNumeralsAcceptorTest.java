@@ -128,15 +128,15 @@ class EnglishNumeralsAcceptorTest {
   void testBasicRecognizesDecadeHyphen() {
     when(numbers.getNumberDefinition("forty")).thenReturn(fortyDef);
     when(numbers.getNumberDefinition("-")).thenReturn(null);
-    when(numbers.getNumberDefinition("five")).thenReturn(null);
+    when(numbers.getNumberDefinition("five")).thenReturn(fiveDef);
 
     assertFalse(basicNumberAcceptor.tryToken("forty", 0, 6));
     assertFalse(basicNumberAcceptor.tryToken("-", 6, 7));
     assertTrue(basicNumberAcceptor.tryToken("five", 7, 12));
 
-    assertEquals(basicNumberAcceptor.begin, 0);
-    assertEquals(basicNumberAcceptor.end, 12);
-    assertEquals(basicNumberAcceptor.value, 45);
+    assertEquals(0, basicNumberAcceptor.begin);
+    assertEquals(12, basicNumberAcceptor.end);
+    assertEquals(45, basicNumberAcceptor.value);
     assertTrue(basicNumberAcceptor.consumedLastToken);
   }
 
