@@ -143,4 +143,24 @@ class FractionNumberAcceptorTest {
     assertEquals(result.getDenominator().compareTo(BigDecimal.valueOf(35)), 0);
     assertEquals(result.getNumberType(), NumberType.FRACTION);
   }
+
+  @Test
+  void testFractionDivideByZero() {
+    assertTrue(fractionNumberDetector.tryToken("124", 0, 2).isEmpty());
+    assertTrue(fractionNumberDetector.tryToken("/", 2, 3).isEmpty());
+    assertTrue(fractionNumberDetector.tryToken("0", 3, 4).isEmpty());
+    List<NumberResult> results = fractionNumberDetector.tryToken("units", 5, 10);
+
+    assertEquals(results.size(), 2);
+    NumberResult result = results.get(0);
+    assertEquals(result.getBegin(), 0);
+    assertEquals(result.getEnd(), 2);
+    assertEquals(result.getNumerator().compareTo(new BigDecimal(124)), 0);
+    assertEquals(result.getNumberType(), NumberType.DECIMAL);
+    result = results.get(1);
+    assertEquals(result.getBegin(), 3);
+    assertEquals(result.getEnd(), 4);
+    assertEquals(result.getNumerator().compareTo(new BigDecimal(0)), 0);
+    assertEquals(result.getNumberType(), NumberType.DECIMAL);
+  }
 }

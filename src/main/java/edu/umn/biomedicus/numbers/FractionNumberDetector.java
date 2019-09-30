@@ -96,7 +96,7 @@ public class FractionNumberDetector extends AbstractNumberDetector {
     } else {
       // check if the previously parsed numerator and denominators are actually fractions
       List<NumberResult> result;
-      if (token.length() == 1 && token.charAt(0) == '/') {
+      if (token.length() == 1 && token.charAt(0) == '/' || denominator.getNumerator().intValue() == 0) {
         // not a fraction
         result = Arrays.asList(numerator, denominator);
       } else {
